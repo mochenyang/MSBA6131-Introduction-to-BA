@@ -1,0 +1,11 @@
+[project]
+name = "msba6131-introduction-to-ba"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "manim>=0.20.1",
+    "manim-voiceover[openai]>=0.4.0",
+    "python-dotenv>=1.2.2",
+]

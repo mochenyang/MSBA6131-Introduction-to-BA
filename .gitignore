@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Virtual environment
+.venv/
+
+# Manim output
+media/
+
+# OS
+.DS_Store
+
+# Secrets
+.env
