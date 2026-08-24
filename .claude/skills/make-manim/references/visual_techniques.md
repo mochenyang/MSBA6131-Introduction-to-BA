@@ -76,6 +76,17 @@ Use `Indicate` sparingly, especially on text. It's tempting to reach for it ever
 - Show a 2D projection/shadow alongside the 3D object to connect back to 2D formulas.
 - Slice through the object to expose cross-sections when that's the point being made.
 
+### Code / Pseudocode Blocks
+**Do not use manim's `Code` mobject** (`from manim import Code`, the pygments-backed syntax-highlighter) — confirmed broken in this project's installed manim version (0.20.1): rendered standalone with a plain 5-line snippet, it overlapped two lines on top of each other and silently dropped the last line entirely from view, with no error at construction or render time. This is exactly the kind of bug that's invisible until you actually look at the rendered frame.
+
+For pseudocode/code-like text, build it from plain `Text` lines instead, arranged with `.arrange(DOWN, aligned_edge=LEFT, buff=...)` inside a `SurroundingRectangle`, and get lightweight keyword coloring via `Text`'s `t2c` param (text-to-color dict), e.g.:
+
+```python
+Text("while True:", font_size=22, t2c={"while": PURPLE_B, "True": PURPLE_B})
+```
+
+This reads as "syntax-highlighted" enough for a pseudocode box without depending on the broken mobject. If a future manim upgrade might have fixed `Code`, verify by rendering a multi-line snippet standalone and inspecting the actual frame (not just checking it imports/constructs without error) before trusting it in a real scene.
+
 ---
 
 ## Common Visual Metaphors

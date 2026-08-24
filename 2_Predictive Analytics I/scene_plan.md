@@ -1,0 +1,125 @@
+# Scene 1
+
+**Text**: In this video, you'll learn the basics of predictive analytics, including the standard prediction pipeline as well as two specific classification techniques: k-nearest neighbors and decision trees.
+
+**Visual**: The title "Predictive Analytics" in center screen. Below it, subtitle "standard prediction pipeline, k-Nearest Neighbors, and Decision Trees".
+
+# Scene 2
+
+**Text**: Predictive analytics is used across a huge range of practical applications. In fact, a lot of what people call "data mining," "machine learning," or even "artificial intelligence" is really predictive analytics under the hood. In finance, it's used to predict loan default from loan applications, to flag fraudulent transactions from transaction characteristics, to estimate credit scores from consumption records, and to forecast stock prices from past prices. Even more advanced applications often labeled "AI" -- image recognition, speech recognition, natural language understanding -- are primarily driven by predictive machine learning underneath. 
+
+Broadly speaking, there are two types of predictive analytics: classification and numeric prediction. The difference is the type of outcome you're trying to predict. Classification predicts categorical outcomes (also called "classes"); numeric prediction predicts numeric, continuous outcomes. 
+
+**Visual**: A central label "Predictive Analytics" with short icon-and-label pairs arranged around it in a grid, appearing one at a time as each is named: a bank icon for loan default, a credit card for fraud detection, a gauge for credit scores, a stock chart for market prices, a stack of dog pictures for image recognition, a speech-bubble for speech recognition, and a stack of documents for NLU. Next, the existing content moves to occupy the top 2/3 of the screen, leaving the bottom 1/3 empty. In the bottom 1/3 of screen, do a split-screen. Left, titled "Classification": a handful of dots colored by discrete category ("Yes Class" / "No Class" tags attached). Right, titled "Numeric Prediction": dots placed along a continuous number line, no discrete labels, just values.
+
+# Scene 3
+
+**Text**: Regardless of the prediction target or learning algorithm, building a predictive model typically follows a standard pipeline. First, training a predictive model requires a labeled dataset, containing data for which you already know the outcome you're trying to predict; this could be historical data with observed outcomes, or a manually labeled sample. Second, deployment of the predictive model is typically done on the unlabeled dataset, with the data for which you want to predict the outcome.
+
+**Visual**: Title in top center "Predictive Modeling Pipeline". Below it, two labeled boxes side by side. Left box, titled "Model Training" with "Labeled Data" as subtitle: rows of data with both an "Attributes" section and a filled-in "Outcome" column showing actual values. Right box, titled "Model Deployment" with "Unlabeled Data" as subtitle: rows with the same "Attributes" section, but the "Outcome" column shown as empty question marks.
+
+# Scene 4
+
+**Text**: Now let's talk about a very important issue in predictive analytics: overfitting. A lot of the design choices and techniques in predictive machine learning exist specifically to avoid or mitigate it. Overfitting is when a predictive model fits the data too well. At first that might not sound like a bad thing -- after all, the whole point of building a model is to fit it to the data. But overfitting means the model fits the data too faithfully, taking into account noise, anomalies, and outliers -- patterns that aren't actually meaningful. And that's dangerous, because the model won't make accurate predictions on new data, since new data likely doesn't share those same quirks. In other words, overfitting hurts a model's generalizability.
+
+Here's an intuitive picture of overfitting. In this two-dimensional plot, the x-axis is the input variable, and the y-axis is the outcome we're predicting. The dots are your labeled data. The straight line is a simple linear model fit to the data -- it doesn't pass through every point perfectly, but it captures the overall trend and isn't thrown off by small changes in the data. The curve, on the other hand, is a complex polynomial model that fits the data perfectly, passing through every single point. But it's unlikely to predict new data well -- even a tiny change in the positions of the data points would drastically reshape that curve. That's what it means for a complex model to overfit.
+
+**Visual**: On-screen text builds the definition progressively: "Overfitting" appears first, then "fits the data too well" beneath it, then a final line "...including the noise" fades in a warning color. Below, a scatter plot of dots with mild noise around an underlying trend. First, a straight line draws through them at a moderate pace -- it clearly doesn't hit every point but tracks the trend -- with the label "Simple model" fading in beside it. Then a wildly curving polynomial line draws in more slowly, weaving through every single dot exactly, in a contrasting color, labeled "Overfit model." Briefly nudge one black dot's position and show the polynomial curve reshaping dramatically while the straight line barely moves, to visualize the sensitivity difference.
+
+# Scene 5
+
+**Text**: So how do we deal with overfitting? A simple yet effective solution is the training-validation split. Given a set of labeled data, we randomly split it into two parts: training data and validation data (sometimes also called "testing data"). We use the training data to build the model. But we don't evaluate the model's performance on the training data, since it may have overfit that data. Instead, we evaluate performance on the validation data -- data the model hasn't seen during training. If the model performs well there, it probably learned something genuinely generalizable, and it should also perform well on new, unseen data at deployment.
+
+**Visual**: Start with the same "Predictive Modeling Pipeline" visual previously. Then, the "Labeled Data" box splits into two smaller boxes side by side beneath it: "Training Data" (larger portion) and "Validation Data" (smaller portion). An arrow from "Training Data" points to a gear icon with "Model" next to it. Then an arrow from the gear icon to "Validation Data" box with text "Performance Eval" next to it.
+
+# Scene 6
+
+**Text**: Here's why training-validation split works so well against overfitting. As an example, imagine you are trying to fit data that are generated by a third-degree polynomial, and you progressively try polynomial models with higher degrees. Suppose the green data points are training data for model trianing and yellow are validation data for model evaluation. As the model becomes more complex, having higher and higher degrees, pay attention to the change of "Validation Error", which is a metric of how closely the model fits the validation data. You can see that "Validation Error" decreases at first as the polynomial degree increases from 1 to 3, but beyond third-degree, further increasing the polynomial degree start to inflate "Validation Error", which is a sign of overfitting. So, by monitoring model's performance on the validation data and select a model that achieves advantageous validation performance, we can effectively mitigate the risk of overfitting.
+
+**Visual**: simulate data points from a third-degree polynomial and then progressively fit polynomial models of degrees 1 through 7. From the genrated data points, randomly select 70% as training and color them green; the rest 30% validation data should be colored yellow. Also show a curve of validation error as the polynomial degree increase.
+
+# Scene 7
+
+**Text**: Now that we know the overall predictive modeling pipeline, let's discuss two simple and commonly used classification algorithms. Our first algorithm is called k-nearest neighbors, or k-NN. 
+
+To understand k-NN, it's worth first thinking about the simplest possible classifier: the naive majority rule. It simply classifies every point as the majority class. For example, if your training data is 60% class "1" and 40% class "0," the naive rule labels every single record as class "1." 
+
+So, can we make the naive rule less naive? One elegant idea: instead of looking at the majority class among *all* training data, what if we only look at the majority class among training data that's *similar* to the new point? That's the gist of k-NN. The intuition is "birds of a feather flock together" -- data points near each other tend to be similar in their attributes, and similar points tend to share the same class.
+
+The k-NN procedure is simple. You pick a value of k. Then, for every new data point, you find the k nearest points in the training data, and predict the majority class among those k neighbors. If there's a tie, you just pick a class at random. Keep in mind that k-NN relies on distance calculations to find the nearest neighbors, so you need to normalize your data when necessary -- the same distance-metric and normalization ideas covered in the clustering video apply here.
+
+A natural question is how do we pick k? This is a model tuning question -- and the standard, general-purpose approach in predictive machine learning is to try different parameter values and pick whichever gives the best performance on the validation data. For k-NN specifically, you try different k values and pick the one that makes the most accurate predictions on the validation set. As a rule of thumb: small k values focus on local structure but are more sensitive to noise -- even one noisy point can flip a prediction. Large k values are more robust to noise but wash out local structure. In fact, if k equals the size of the entire training set, k-NN becomes identical to the naive rule. The good news is you don't have to guess -- you can just try a range of k values and pick whichever objectively performs best on validation data.
+
+**Visual**: Title "First Predictive Algorithm: k-NN" in center top. 
+
+Show a box titled "Naive Majority Rule". Inside, a bar showing labeled training data as a strip of colored segments, roughly 60% one color and 40% another, with percentage labels. Below, the naive rule "paints" a full row of new, unlabeled points entirely in the majority color, with a label "Naive Rule: always predict the majority class."
+
+Next, the box fades and instead show a scatter of colored dots representing training data. A new, grey point appears. Instead of considering the whole scatter (everything dims at first), a circle draws in around just the new point's nearest neighbors, and only those brighten back up -- visually narrowing "majority vote over everyone" down to "majority vote over just my neighbors."
+
+When talking about the k-NN procedure, re-use the same set of scatter dots. A short numbered list builds top to bottom: "1. Pick k (e.g., k = 3)", "2. Find k nearest training points" (highlight the 3 nearest neighbors), "3. Find the majority class among them (Tie? Pick randomly)". Have a footnote line fades in beneath: "Requires normalized data -- distance-based, just like clustering."
+
+Finally, when discussing the choice of k, show another numbered list below the one about procedure, with "Choosing k: Model Tuning" as title with the following items: "1. Try different k values"; "2. Pick the one that achieves best performance on validation data"; "3. "Smaller k: more local information; larger k: more global information".
+
+# Scene 8
+
+**Text**: Now let's talk about the second classification algorithm: the decision tree. It's a foundational techniques in machine learning and the basis for several more advanced, popular algorithms such as random forest and gradient boosting trees. A decision tree is a set of if-then decision rules organized into the structure of a tree. For example, here's a tree built to predict whether someone will buy a PC, based on demographic information. Each branch corresponds to one decision rule -- this highlighted branch, for instance, says: if the person is younger than 30 and is not a student, the model predicts they will not buy a PC.
+
+A decision tree has two kinds of nodes. A decision node contains the attribute the tree is splitting on -- in this example, age, student status, children at home, and college education are all decision nodes. A leaf node contains the final prediction. Every path through the tree passes through some decision nodes and ends in a leaf node.
+
+**Visual**: A decision tree diagram builds top-down: Start at the root: Is the person under 30? 
+- If yes (Age < 30): The next question is whether they are a student. If they are a student, the prediction is PC (they buy one). If they are not a student, the prediction is no PC. (This is the branch circled in red — for young people, student status alone decides the outcome.)
+- If no (Age ≥ 30): The next question is whether they have children at home. If yes, the prediction is PC. If no, one more question is asked: do they have a college education? If yes, the prediction is PC; if no, the prediction is No PC.
+
+On the same tree, every internal node outlined in one color and labeled "Decision Node," and every terminal node outlined in a contrasting color labeled "Leaf Node" -- a small legend in the corner maps color to node type.
+
+# Scene 9
+
+**Text**: So how do we actually build a decision tree? Since a tree is just a collection of decision rules, the real question is how to construct useful rules. The intuition: a decision rule "slices" your data into sub-regions based on attribute values, and a good rule slices the data so each sub-region is mostly one class. Why? Because if a region is mostly one class, any new, unlabeled point that lands there can be confidently classified into that class. Here's an example: suppose we are trying to build a decision tree to predict whether a data point belongs to the "yellow" class or the "purple" class, based on values of two attributes X1 and X2. The idea is to find values of X1 and X2 such that, slicing the space based on them would create sub-regions that mostly consist of one class. And a collection of such slices uniquely corresponds to a decision tree. 
+
+This example also raises two questions. First, how exactly do we slice the data -- how do we pick which attribute and which split point? Second, when do we stop splitting? In theory, given a finite dataset, you could keep slicing until every sub-region contains just a single data point. Left unchecked, a decision tree can fit its training data perfectly. But as we saw earlier with overfitting, that's a bad thing. So the rest of this discussion answers two questions: where to split, and when to stop.
+
+**Visual**: Title "Building Decision Tree: Intuition" in central top. Below it, subtitle that says "Iteratively slicing the data so each sub-region ends up mostly one class". Below the subtitle, a 2D plot with axes X1 and X2, scattered with yellow and purple dots roughly clustered. A horizontal line draws in at X1 = certain value \alpha, splitting off the upper region (shaded, mostly yellow dots visible). The lower region then gets a vertical line at X2 = \beta, splitting it into a mostly-purple bottom-left region and a mostly-yellow bottom-right region. Right side, in sync with each split, a decision tree builds node by node: root "X1 > \alpha?" branching to a yellow leaf on one side and, on the other, a second decision node "X2 > \beta?" branching to a purple leaf and a yellow leaf.
+
+When narrating the "two questions" raised by the example, showing the two questions in a numbered list next to the 2D plot with items "Where to split" and "When to stop". More specifically, when discussing "where to split", highlight \alpha and \beta; when discussing "when to stop", show the slides taken to an extreme -- many more splitting lines cut the space into tiny slivers, each containing just one or two dots of purely one class. A warning-colored label "Overfit!" fades in next to it.
+
+# Scene 10
+
+**Text**: Let's now formalize the intuition into an algorithm for building a decision tree. It's called recursive partitioning. In each round, we pick one attribute Xi and a split value si. This divides the data into two portions: one where Xi is larger than si, and one where it's smaller. Then we repeat this process on each new portion, until we hit some stopping criterion. One side note: unlike k-NN, you don't need to normalize your data for decision trees, since we're not measuring distances between points -- just comparing single attribute values.
+
+Now, where to split. The goal of each split is to make both resulting portions as "pure" as possible -- meaning each portion contains mostly one class rather than a mix. So we measure the purity of each possible split, and pick whichever split gives the highest purity. One commonly used purity metric is entropy, or Shannon entropy, from information theory. Entropy is a number between 0 and 1: the higher the value, the more the classes are "mixed up." When the two classes are perfectly balanced -- 50/50 -- entropy is at its highest, 1. When entropy is 0, the data contains only one class -- it's completely pure. So, smaller entropy means purer data.
+
+Based on entropy, we get a metric called information gain, which measures how much entropy would drop if we split on a particular point -- in other words, how much benefit that split gives us. In each round of recursive partitioning, we pick whichever split gives the highest information gain. 
+
+Now that we know how to split, when do we stop growing the tree? Intuitively, if all the data in a node is already one class, then it becomes a leaf node of that class and no further split is needed. In practice, if you keep splitting until all leaf nodes are pure, you would still likely get a very deep tree that is prune to overfitting. Therefore, we rely on tree pruning techniques to manage that. 
+
+There are two types of pruning techniques: pre-pruning, which restricts how large the tree is allowed to grow while it's being built -- for example, thresholds on the minimum information gain for a split, the minimum number of data points per node, the maximum depth, or the maximum number of decision nodes. And post-pruning, which lets the tree grow freely first, then cuts back nodes afterward based on how much each node actually reduces expected error -- essentially evaluating each node's usefulness and removing the useless ones.
+
+**Visual**: Title "Building Decision Tree: Recursive Partitioning". Below it, on the left side, show the pseudo-algorithm in a box. The pseudo-algorithm should have a "While TRUE" outer loop and the "break" clause for when terminal conditions are met. A small note under the algorithm box fades in at the bottom: "No normalization needed (unlike k-NN),".
+
+When talking about "where to split", highlight the line in algorithm that picks the split point and then, on the right side of the algorithm box, show "Measure purity by entropy" and the entropy formula for two classes under it. As the text describes the case of entropy 0 and entropy 1, show the corresponding input and output values of the entropy function. Then, show information gain as delta entropy before and after splitting on a particular feature value. 
+
+Next, when talking about "when to stop", highlight the line in algorithm that break out of the while loop when stopping conditions are met and then, on the right side of the algorithm box, show "all data in a node belong to same class -> no need for further splits". Then, when talking about tree pruning, show two smaller box under it: Left, titled "Pre-Pruning": a tree grows node by node but stops early, with a threshold gate icon ("min info gain," "max depth") blocking further growth partway down. Right, titled "Post-Pruning": a full, deep tree grows completely first, then individual low-value nodes get cut out by a scissor icon one at a time, leaving a smaller, cleaned-up tree.
+
+# Scene 11
+
+**Text**: Finally, let's learn how to evaluate the performance of predictive machine learning models. The basic idea is to deploy the model on the validation or testing data, then compare its predictions against the actual observed outcomes. Because classification and numeric prediction have different types of outcomes, they need different evaluation strategies. For a classification model, the outcome is categorical, so performance depends on whether the model puts each point in the right category. For a numeric prediction model, the outcome is continuous, so performance depends on how close the predictions are to the actual values. 
+
+Here, we'll focus on evaluating classification models. A standard tool that summarizes a model's prediction correctness is confusion matrix, and several common performance metrics are defined based on the confusion matrix. Here's an example confusion matrix for a binary classification task, where the outcome is either positive or negative. Each row represents a predicted class, each column represents an actual class, and each of the four cells counts how many points fall into that combination. The upper-left cell, for example, counts points predicted positive that are actually positive. The upper-right cell counts points predicted positive that are actually negative. The two diagonal cells hold the correct predictions; the two off-diagonal cells hold the misclassifications. These four cells are commonly labeled true positive, false positive, false negative, and true negative.
+
+**Visual**: title "Prediction Performance Evaluation" on central top. Below it, split-screen, echoing scene 4's classification-vs-numeric-prediction layout. Left, "Classification": a predicted category label compared against an actual category label, with a checkmark or X. Right, "Numeric Prediction": a predicted number and an actual number on a shared number line, with a small gap between them representing the error. The right side dims slightly as the text says evaluation will focus on classification.
+
+Next, the part corresponding to "numeric prediction" fades away, and then show a 2x2 grid builds cell by cell. Rows labeled "Predicted: Positive" / "Predicted: Negative" on the left; columns labeled "Actual: Positive" / "Actual: Negative" on top. As each cell is introduced, it highlights and gets its count label plus its standard name fading in beneath: "True Positive," "False Positive," "False Negative," "True Negative." The two diagonal cells (TP, TN) are outlined in one color for correct predictions, the two off-diagonal cells (FP, FN) in another for errors.
+
+# Scene 12
+
+**Text**: For concreteness, let's think about the following confusion matrix from a fraud detection model. The two outcome classes respectively represent fradulent transactions and non-fradulent transaction. From the confusion matrix, we can now define several common performance metrics. The first is accuracy: simply the percentage of correct predictions across all classes -- this is an overall measure of performance.
+
+Beyond accuracy, there's precision and recall -- both class-specific measures, meaning they're defined separately for each class. Take the fradulent class as an example. Precision of the fradulent class asks: among all the predictions the model labeled fradulent, what percentage were actually correct? Recall of the fradulent class asks: among all the data points that are actually fradulent, what percentage did the model correctly catch? The same definitions apply for the non-fradulent class. The key difference is the denominator: precision looks across all predictions of a class, while recall looks across all actual data points of that class.
+
+Because precision and recall capture different aspects of performance, we often combine them into a single number: the F-measure. Like precision and recall, it's a class-specific metric -- a particular way of averaging a class's precision and recall into one score.
+
+**Visual**: Construct an actual confusion matrix from 100 validation data points (i.e., 4 cells add up to 100). For accuracy, highlight the two cells on the diagnoal, and present the formula and calculation result to the right of the confusion matrix. 
+
+For precision: the entire "Predicted: Fradulent" row is outlined, with the TP cell inside it highlighted, and a formula "Precision = TP / (TP + FP)" builds beside it. Then for recall: the entire "Actual: Fradulent" column is outlined instead, same TP cell highlighted, with "Recall = TP / (TP + FN)" building beside it -- the row-vs-column outline contrast is the visual point.
+
+For F-measure, highlight precision and recall for fradulent class, animate moving the corresponding parts of the F-measure formula and then producing the calculation result.

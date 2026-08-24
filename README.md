@@ -2,7 +2,7 @@
 
 Teaching materials for MSBA 6131, Introduction to Business Analytics. Each numbered folder (e.g. `1_Cluster Analysis/`) is a self-contained unit that builds a narrated `manim` video explaining one topic.
 
-This repo is set up so that videos are never hand-animated in one giant script. Instead, each unit has a `scene_plan.md` (a plain-language script) that gets turned into one small, independently-previewable Python file per scene, plus a combined script that stitches them into the final video. See [The `/make-manim` skill](#the-make-manim-skill) below for how that works.
+This repo is set up so that videos are never hand-animated in one giant script. Instead, each unit has a `scene_plan.md` (a plain-language script), produced from an instructor script or lecture transcript by the `/make-scene-plan` skill, which then gets turned into one small, independently-previewable Python file per scene plus a combined script that stitches them into the final video by the `/make-manim` skill. See [The Claude Code skills](#the-claude-code-skills) below for how both work.
 
 ## Prerequisites
 
@@ -55,7 +55,9 @@ uv run manim -qh "1_Cluster Analysis/cluster_analysis.py" ClusterAnalysis
 .
 ├── tts.py                       # shared helper: builds the OpenAI TTS voice service, reads OPENAI_API_KEY from .env
 ├── pyproject.toml / uv.lock     # dependencies (manim, manim-voiceover, python-dotenv)
-├── .claude/skills/make-manim/   # the /make-manim skill (see below)
+├── .claude/skills/               # Claude Code skills (see below)
+│   ├── make-scene-plan/         #   transcript -> scene_plan.md
+│   └── make-manim/              #   scene_plan.md -> scenes/ + combined script
 └── 1_Cluster Analysis/          # one folder per teaching unit, numbered in viewing order
     ├── scene_plan.md            #   the script: one `# Scene N` heading per scene, with **Text** (narration) and **Visual** (what's on screen)
     ├── cluster_analysis.py      #   combined script: imports every scene and plays them in order for the final render
@@ -69,13 +71,30 @@ uv run manim -qh "1_Cluster Analysis/cluster_analysis.py" ClusterAnalysis
 
 Each `scenes/scene_NN.py` follows the same shape: a `SceneNNMixin` class holding a `scene_NN(self)` method (the actual content — this is the single source of truth, used both standalone and in the combined script), and a thin `SceneNN(VoiceoverScene, SceneNNMixin)` wrapper for standalone preview. The unit's combined script (e.g. `cluster_analysis.py`) inherits every scene's mixin into one class and calls each `scene_NN()` method in order.
 
-To add a new unit, create a new numbered folder with a `scene_plan.md` following the same format as the cluster analysis one, and hand it to the `/make-manim` skill.
+To add a new unit end-to-end: start from an instructor script or lecture transcript and hand it to `/make-scene-plan`, review the `scene_plan.md` it produces, then hand that to `/make-manim`. You can also skip straight to `/make-manim` if you already have a hand-written `scene_plan.md` in the same format.
 
-## The `/make-manim` skill
+## The Claude Code skills
 
-`.claude/skills/make-manim/` is a [Claude Code skill](https://docs.claude.com/en/docs/claude-code) — a packaged set of instructions Claude follows when you invoke `/make-manim` in this repo. It turns a `scene_plan.md` into the `scenes/` package and combined script described above, so you don't have to hand-write manim boilerplate for every scene. This skill relies on (and modifies) a visual technique guide kindly shared by [this GitHub project](https://github.com/adithya-s-k/manim_skill/blob/main/skills/manim-composer/references/visual-techniques.md)
+Both `.claude/skills/make-scene-plan/` and `.claude/skills/make-manim/` are [Claude Code skills](https://docs.claude.com/en/docs/claude-code) — packaged instructions Claude follows when you invoke the matching slash command in this repo. Together they form a two-stage pipeline:
 
-**Example Usage** (inside Claude Code, in this repo):
+```
+instructor script / transcript  --[/make-scene-plan]-->  scene_plan.md  --[/make-manim]-->  scenes/ + combined script
+```
+
+They're separate, human-reviewable stages on purpose: `/make-scene-plan` makes a content judgment (what to say, in what order, for pedagogical clarity), `/make-manim` makes an engineering judgment (how to render that content in manim) — and it's worth reading the `scene_plan.md` before code gets generated from it.
+
+### `/make-scene-plan`
+
+Turns a raw instructor script, cleaned-up narration doc, or ASR transcript of a recorded lecture into a `scene_plan.md`. It reads the whole input first, picks out (or asks about) a topic and a concrete running example to reuse across scenes, then segments the material into one-idea-per-scene beats — cutting filler/false starts/digressions, resequencing where the transcript's order is pedagogically awkward, and following a concrete-example-before-formal-definition arc where the source supports it. Every scene gets both a cleaned-up `**Text**` (kept close to the instructor's own phrasing) and an invented-if-necessary `**Visual**` sketch. It does not invoke `/make-manim` automatically — it hands back the plan and flags anything it wasn't sure about (a resequenced section, an invented visual, a cut digression) so review is fast.
+
+```
+/make-scene-plan <path/to/transcript.txt>                        # infer/propose a unit folder from the transcript's topic
+/make-scene-plan <path/to/transcript.txt> <path/to/unit-folder>  # write scene_plan.md into a specific unit folder
+```
+
+### `/make-manim`
+
+Turns a `scene_plan.md` into the `scenes/` package and combined script described above, so you don't have to hand-write manim boilerplate for every scene. This skill relies on (and modifies) a visual technique guide kindly shared by [this GitHub project](https://github.com/adithya-s-k/manim_skill/blob/main/skills/manim-composer/references/visual-techniques.md).
 
 ```
 /make-manim <path/to/scene_plan.md>          # build every scene for a unit
@@ -92,5 +111,3 @@ What it does, roughly:
 4. Handles cross-scene dependencies via lightweight "fixtures" (a scene that needs an earlier scene's end-state reconstructs just that end-state directly for its standalone preview, rather than replaying the whole earlier scene and its narration).
 5. Writes/updates the unit's combined script.
 6. Validates everything: syntax-checks and import-checks every changed file, smoke-renders 1-2 scenes at low quality, and scans for a specific pitfall — two scenes accidentally defining a same-named helper method, which silently breaks in the *combined* render even though every scene previews fine on its own (Python's MRO quietly picks one scene's version for all of them). It does **not** render every scene or the full combined video automatically, since every `voiceover(...)` block is a real, billed TTS call — full renders are something you trigger yourself once you're happy with the low-quality previews.
-
-If you're building a new unit, just write a `scene_plan.md` in the same `# Scene N` / `**Text**` / `**Visual**` format as `1_Cluster Analysis/scene_plan.md` and run `/make-manim` on it.

@@ -95,6 +95,19 @@ Rules:
 - If the scene needs numpy or other libs, import them normally after the `sys.path` block.
 - Write the actual scene content following `references/visual_techniques.md` — load that file now if you haven't yet. In particular: progressive disclosure (build complexity step by step, matching how the `**Text**` unfolds), transform-don't-replace for related objects, deliberate color/spatial choices, and voiceover-driven timing (animations sum to a bit less than `tracker.duration`, absorb the rest with `self.wait(tracker.get_remaining_duration())`).
 
+### Timing narration precisely
+
+Don't place multi-beat reveals (e.g. "an icon appears for each item as it's named," "a label lights up as its term is spoken") by eyeballing `run_time`/`wait()` values — a sentence can easily run 20-30 seconds, and front-loading every visual into the first few seconds (leaving a long dead tail) is the single most common way these scenes end up "out of sync" once real narration is behind them. Use `scripts/vo_timing.py` instead:
+
+```
+python3 <skill-dir>/scripts/vo_timing.py duration "<exact voiceover text>"
+python3 <skill-dir>/scripts/vo_timing.py --media-dir media/voiceovers mark "<exact voiceover text>" "phrase to locate" "another phrase"
+```
+
+- Before any render exists, `duration` gives a calibrated word-count estimate — use it to sanity-check that planned `run_time`s + waits stay safely under it for every voiceover block, especially ones with several sequential beats.
+- After the scene has been smoke-rendered once (Step 5), pass `--media-dir` pointing at wherever `media/voiceovers/` ended up (wherever `manim` was run *from* — usually the repo root, not the scene file's folder) and `mark` will use the *real* cached clip to report the actual timestamp (word-position-proportional, not forced-aligned, but far more accurate than a guess) where each marker phrase starts/ends. Use those timestamps to place the matching `self.play(...)` calls.
+- If you edit narration text after a render, the cache no longer has an entry for the new exact string — you'll silently fall back to the estimate until the next render. That's fine as a stopgap, just budget extra safety margin on the final `self.wait(tracker.get_remaining_duration())` in that case.
+
 ## Step 3: Handle cross-scene state with fixtures, not replays
 
 If scene N's `**Visual**` depends on something built in an earlier scene (e.g. "the same scatter plot as scene 2"), the earlier scene's mixin should stash the needed mobjects as `self.<name>` at the point they're finished with (see `self.customer_plot = plot` at the end of `scene_02.py`'s `scene_02` method in the cluster-analysis example), and the later scene reads `self.<name>` assuming it's already set (that's true when running the combined script, since scenes execute in order on one instance).
@@ -161,8 +174,11 @@ For `--scene N` / `--from N` runs, only touch the specific `scenes/scene_NN.py` 
                seen[name] = cls
    ```
    Any printed collision means the combined-video render silently uses the wrong scene's version of that helper. Fix by renaming to a scene-prefixed name (Step 2's naming rule) in every colliding file and re-running until nothing prints.
-5. Report which scenes were built/changed, which (if any) were smoke-rendered, and remind the user of the per-scene preview command and the full-render command for the combined script.
+5. For any smoke-rendered scene with a multi-beat voiceover block (several things revealed within one narration line), re-run `scripts/vo_timing.py mark` with `--media-dir` pointing at the smoke-test's `media/voiceovers/` — that render just populated the cache with the real clip, so this now reports actual timestamps instead of estimates. Retime anything that's off before moving on; this is cheaper to catch now than after a full render or a user's manual review.
+6. Report which scenes were built/changed, which (if any) were smoke-rendered, and remind the user of the per-scene preview command and the full-render command for the combined script.
 
 ## Reference
 
-Load `references/visual_techniques.md` before writing scene content (Step 2) — it covers progressive disclosure, color/spatial semantics, animation idioms (`Indicate`, `Circumscribe`, `TransformMatchingTex`, ...), layout templates, and timing guidelines in more depth than fits here.
+Load `references/visual_techniques.md` before writing scene content (Step 2) — it covers progressive disclosure, color/spatial semantics, animation idioms (`Indicate`, `Circumscribe`, `TransformMatchingTex`, ...), layout templates, timing guidelines, and a known pitfall with manim's `Code` mobject, in more depth than fits here.
+
+`scripts/vo_timing.py` is the narration-sync helper described in Step 2's "Timing narration precisely" — run `python3 scripts/vo_timing.py --help` for full usage.
