@@ -48,7 +48,6 @@ class Scene06Mixin:
                 )
         ) as tracker:
             self.play(Write(title), run_time=2)
-            self.play(Indicate(title), run_time=1)
             self.wait(tracker.get_remaining_duration())
 
         subtitle1 = Text("Depends on your data type", font_size=24, color=GRAY)
@@ -62,7 +61,6 @@ class Scene06Mixin:
         ) as tracker:
             self.play(FadeIn(subtitle1, shift=UP * 0.2), run_time=1.5)
             self.play(FadeIn(subtitle2, shift=UP * 0.2), run_time=1.5)
-            self.play(Indicate(subtitle), run_time=1)
             self.wait(tracker.get_remaining_duration())
 
         divider = Line(UP * 2.9, DOWN * 3.2, color=GRAY).shift(LEFT * 1.5)
@@ -88,7 +86,6 @@ class Scene06Mixin:
             self.play(FadeOut(subtitle), Create(divider), run_time=1)
             self.play(Create(plane), run_time=1.5)
             self.play(FadeIn(dot_a), FadeIn(dot_b), Write(label_a), Write(label_b), run_time=1.5)
-            self.play(Indicate(VGroup(dot_a, dot_b)), run_time=1)
             self.wait(tracker.get_remaining_duration())
 
         bullets = VGroup()
@@ -96,7 +93,6 @@ class Scene06Mixin:
             numeric_header = Text("Numeric /\nContinuous Data", font_size=24, color=YELLOW, line_spacing=1.1)
             numeric_header.to_edge(LEFT, buff=0.5).set_y(1.9)
             self.play(Write(numeric_header), run_time=1.5)
-            self.play(Indicate(numeric_header), run_time=1)
             self.wait(tracker.get_remaining_duration())
         bullets.reference_y = numeric_header.get_bottom()[1] - 0.45
 
@@ -165,7 +161,6 @@ class Scene06Mixin:
 
         with self.voiceover(text="The distance you'd need to travel is the Manhattan distance.") as tracker:
             self.play(FadeOut(traveler), run_time=0.5)
-            self.play(Indicate(manhattan_path), run_time=1.2)
             self.wait(tracker.get_remaining_duration())
 
         with self.voiceover(
@@ -183,7 +178,6 @@ class Scene06Mixin:
             self.play(FadeOut(manhattan_path), FadeTransform(manhattan_formula, max_formula), run_time=1)
             highlight_seg = Line(point_a, corner, color=MAXCOORD_COLOR, stroke_width=6)
             self.play(Create(highlight_seg), run_time=1.5)
-            self.play(Indicate(highlight_seg), run_time=1)
             self.wait(tracker.get_remaining_duration())
 
         numeric_group = VGroup(
@@ -200,7 +194,6 @@ class Scene06Mixin:
             binary_header = Text("Binary /\nCategorical Data", font_size=24, color=YELLOW, line_spacing=1.1)
             binary_header.to_edge(LEFT, buff=0.5).set_y(1.9)
             self.play(Write(binary_header), run_time=1.5)
-            self.play(Indicate(binary_header), run_time=1)
             self.wait(tracker.get_remaining_duration())
 
         attrs_a = [1, 0, 1, 1, 0, 0]
@@ -250,8 +243,7 @@ class Scene06Mixin:
             matching_formula = MathTex(
                 r"d_{match}(A,B)=\frac{2}{6}=0.33", font_size=32, color=MATCHING_COLOR
             ).move_to(RIGHT * 2.6 + DOWN * 0.5)
-            self.play(Write(matching_formula), run_time=1.8)
-            self.play(Indicate(matching_formula), run_time=1)
+            self.play(Write(matching_formula), run_time=2.5)
             self.wait(tracker.get_remaining_duration())
 
         with self.voiceover(

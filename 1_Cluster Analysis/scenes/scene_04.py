@@ -43,8 +43,6 @@ class Scene04Mixin:
             self.play(Create(divider), run_time=1)
             self.play(Write(left_title), run_time=2)
             self.play(Write(right_title), run_time=2)
-            self.play(Indicate(left_title), run_time=1)
-            self.play(Indicate(right_title), run_time=1)
             self.wait(tracker.get_remaining_duration())
 
         # Reuse the exact same customer scatter from the Walmart example
@@ -98,7 +96,7 @@ class Scene04Mixin:
                 circle = SurroundingRectangle(group, color=color, buff=0.15, corner_radius=0.2)
                 discovered_circles.add(circle)
                 self.play(group.animate.set_color(color), Create(circle), run_time=1.6)
-                self.play(Indicate(group, scale_factor=1.2), run_time=0.6)
+                self.wait(0.6)
 
             self.wait(tracker.get_remaining_duration())
 
@@ -150,7 +148,7 @@ class Scene04Mixin:
             self.play(*anims, run_time=2.5)
             positive_posts = VGroup(*[p for p, s in zip(posts, post_sentiment) if s == 1])
             negative_posts = VGroup(*[p for p, s in zip(posts, post_sentiment) if s == 0])
-            self.play(Indicate(positive_posts), Indicate(negative_posts), run_time=1.5)
+            self.wait(1.5)
             self.wait(tracker.get_remaining_duration())
 
         self.play(

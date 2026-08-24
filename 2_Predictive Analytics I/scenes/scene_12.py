@@ -10,10 +10,10 @@ from manim_voiceover import VoiceoverScene
 from tts import get_speech_service
 from common import make_confusion_matrix, CORRECT_COLOR, ERROR_COLOR
 
-FRAUD_PRED_LABELS = ("Predicted: Fraudulent", "Predicted: Non-Fraudulent")
+FRAUD_PRED_LABELS = ("Predicted: Fraud", "Predicted: Non-Fraud")
 # Short column labels -- "Actual: Non-Fraudulent" would collide with its
 # neighbor above adjacent cells, same issue fixed in common.make_confusion_matrix.
-FRAUD_ACTUAL_LABELS = ("Fraud", "Non-Fraud")
+FRAUD_ACTUAL_LABELS = ("Actual:\nFraud", "Actual:\nNon-Fraud")
 # TP, FP / FN, TN -- sums to 100 validation points
 FRAUD_COUNTS = [[15, 5], [10, 70]]
 
@@ -37,17 +37,21 @@ class Scene12Mixin:
         # later in its own narration block, but never moved or resized
         # again once shown (previously accuracy shrank into a corner and
         # the rest were scattered across the frame).
+        # Formula and substitution sit side by side (not stacked) so each
+        # metric block is shorter vertically -- stacking all four blocks
+        # DOWN previously made the group tall enough to overlap the
+        # confusion-matrix subtitle at the top of the frame.
         acc_formula = MathTex(r"\text{Accuracy} = \frac{TP + TN}{\text{Total}}", font_size=26)
-        acc_sub = MathTex(r"= \frac{15 + 70}{100} = 85\%", font_size=26)
-        acc_group = VGroup(acc_formula, acc_sub).arrange(DOWN, buff=0.2)
+        acc_sub = MathTex(r"= \frac{15 + 70}{100} = 0.85", font_size=26)
+        acc_group = VGroup(acc_formula, acc_sub).arrange(RIGHT, buff=0.3)
 
         prec_formula = MathTex(r"\text{Precision}_{\text{fraud}} = \frac{TP}{TP + FP}", font_size=24)
         prec_sub = MathTex(r"= \frac{15}{15 + 5} = 0.75", font_size=24)
-        prec_group = VGroup(prec_formula, prec_sub).arrange(DOWN, buff=0.2)
+        prec_group = VGroup(prec_formula, prec_sub).arrange(RIGHT, buff=0.3)
 
         rec_formula = MathTex(r"\text{Recall}_{\text{fraud}} = \frac{TP}{TP + FN}", font_size=24)
         rec_sub = MathTex(r"= \frac{15}{15 + 10} = 0.6", font_size=24)
-        rec_group = VGroup(rec_formula, rec_sub).arrange(DOWN, buff=0.2)
+        rec_group = VGroup(rec_formula, rec_sub).arrange(RIGHT, buff=0.3)
 
         precision_val = 15 / 20
         recall_val = 15 / 25
@@ -57,7 +61,7 @@ class Scene12Mixin:
             font_size=22,
         )
         f_sub = MathTex(rf"= \frac{{2 (0.75)(0.6)}}{{0.75 + 0.6}} \approx {f_val:.2f}", font_size=22)
-        f_group = VGroup(f_formula, f_sub).arrange(DOWN, buff=0.2)
+        f_group = VGroup(f_formula, f_sub).arrange(RIGHT, buff=0.3)
 
         VGroup(acc_group, prec_group, rec_group, f_group).arrange(DOWN, buff=0.45).move_to(RIGHT * 3.6 + DOWN * 0.2)
 
@@ -86,6 +90,7 @@ class Scene12Mixin:
                 "an overall measure of performance."
             )
         ) as tracker:
+            self.wait(4.0)
             self.play(Create(acc_diag), run_time=1.5)
             self.play(Write(acc_formula), run_time=1.5)
             self.play(Write(acc_sub), run_time=1.5)
@@ -108,6 +113,7 @@ class Scene12Mixin:
                 "correct?"
             )
         ) as tracker:
+            self.wait(8.0)
             self.play(Create(row_outline), run_time=1.5)
             self.play(Create(tp_highlight), run_time=1)
             self.play(Write(prec_formula), run_time=1.5)

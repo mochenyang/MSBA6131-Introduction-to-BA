@@ -33,7 +33,6 @@ class Scene07Mixin:
                 "Different scales can distort distance calculations", font_size=26, color=YELLOW
             ).next_to(title, DOWN, buff=0.5)
             self.play(FadeIn(subtitle, shift=UP * 0.2), run_time=2)
-            self.play(Indicate(subtitle), run_time=1)
             self.wait(tracker.get_remaining_duration())
 
         age_bar = Line(LEFT * 4.5, LEFT * 1.5, color=BLUE, stroke_width=6).shift(UP * 2.5)
@@ -53,7 +52,6 @@ class Scene07Mixin:
             self.play(FadeOut(subtitle), run_time=1)
             self.play(Create(age_bar), Write(age_bar_label), run_time=1.8)
             self.play(Create(income_bar), Write(income_bar_label), run_time=1.8)
-            self.play(Indicate(VGroup(age_bar_label, income_bar_label)), run_time=1.2)
             self.wait(tracker.get_remaining_duration())
 
         AGE_1, AGE_2 = 30, 35

@@ -34,7 +34,7 @@ class Scene05Mixin:
         ) as tracker:
             title = Text("Ingredients for Clustering", font_size=36).to_edge(UP, buff=0.6)
             self.play(Write(title), run_time=2)
-            self.play(Indicate(title), run_time=1)
+            self.wait(1.0)
             self.wait(tracker.get_remaining_duration())
 
         with self.voiceover(
@@ -57,8 +57,7 @@ class Scene05Mixin:
             mini_groups = make_customer_clusters(mini_axes)
             mini_plot = VGroup(mini_axes, *mini_groups).scale(0.35).next_to(note1, DOWN, buff=0.5)
             self.play(Create(mini_axes), run_time=1.3)
-            self.play(FadeIn(VGroup(*mini_groups), lag_ratio=0.05), run_time=1.8)
-            self.play(Indicate(mini_plot), run_time=1)
+            self.play(FadeIn(VGroup(*mini_groups), lag_ratio=0.05), run_time=2.0)
             self.wait(tracker.get_remaining_duration())
 
         with self.voiceover(
@@ -73,8 +72,7 @@ class Scene05Mixin:
                 color=YELLOW,
             ).next_to(title, DOWN, buff=0.8)
             self.play(FadeOut(mini_plot), run_time=1)
-            self.play(FadeTransform(note1, note2), run_time=1.5)
-            self.play(Indicate(note2), run_time=1)
+            self.play(FadeTransform(note1, note2), run_time=2.0)
             self.wait(tracker.get_remaining_duration())
 
         box1, label1, check1 = self.make_checklist_item("Measure similarity between data points", 1.3)
@@ -96,7 +94,6 @@ class Scene05Mixin:
             self.play(Create(box1), Write(label1), run_time=1.5)
             self.play(Create(check1), run_time=1)
             self.play(FadeIn(sub1, shift=UP * 0.1), run_time=1.5)
-            self.play(Indicate(VGroup(box1, label1, check1)), run_time=1.2)
             self.wait(tracker.get_remaining_duration())
 
         sub2 = Text(
@@ -111,7 +108,6 @@ class Scene05Mixin:
             self.play(Create(box2), Write(label2), run_time=1.5)
             self.play(Create(check2), run_time=1)
             self.play(FadeIn(sub2, shift=UP * 0.1), run_time=1.5)
-            self.play(Indicate(VGroup(box2, label2, check2)), run_time=1.2)
             self.wait(tracker.get_remaining_duration())
 
         sub3 = Text(

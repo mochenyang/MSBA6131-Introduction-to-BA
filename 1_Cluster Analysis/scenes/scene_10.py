@@ -163,8 +163,11 @@ class Scene10Mixin:
                 "that you want to cut to read out a clustering solution."
             )
         ) as tracker:
-            sweep_top_y = self.scene10_dend_xy(self.dend_x_mid, 3.4)[1]
-            sweep_bottom_y = self.scene10_dend_xy(self.dend_x_mid, 0.3)[1]
+            # Top sits inside the gap between the last intra-group merge and
+            # the first inter-group merge (recomputed for CLUSTER_POINTS_2D's
+            # current spread); bottom sits below the smallest merge height.
+            sweep_top_y = self.scene10_dend_xy(self.dend_x_mid, 3.2)[1]
+            sweep_bottom_y = self.scene10_dend_xy(self.dend_x_mid, 0.4)[1]
             sweep_line = DashedLine(
                 LEFT * 5.5 + UP * sweep_top_y, RIGHT * 5.5 + UP * sweep_top_y, color=GRAY, stroke_width=3
             )

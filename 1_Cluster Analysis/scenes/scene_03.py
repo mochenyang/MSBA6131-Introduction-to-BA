@@ -116,7 +116,7 @@ class Scene03Mixin:
         ) as tracker:
             self.play(Indicate(VGroup(circle_a, pairwise_lines, intra_label)), run_time=1.5)
             self.play(Indicate(VGroup(inter_arrow, inter_label)), run_time=1.5)
-            self.play(Indicate(circle_a), Indicate(circle_b), Indicate(circle_c), run_time=2)
+            self.wait(2.0)
             self.play(FadeIn(checkmark, shift=UP * 0.3), run_time=1.5)
             # Circumscribe(checkmark, ...) would size the box off checkmark.height,
             # which manim misreports for Text mobjects shifted off the y=0 axis

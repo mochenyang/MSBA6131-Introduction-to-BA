@@ -11,7 +11,7 @@ from tts import get_speech_service
 from common import make_confusion_matrix, CORRECT_COLOR, ERROR_COLOR
 
 CM_PRED_LABELS = ("Predicted: Positive", "Predicted: Negative")
-CM_ACTUAL_LABELS = ("Positive", "Negative")
+CM_ACTUAL_LABELS = ("Actual:\nPositive", "Actual:\nNegative")
 CM_TYPE_NAMES = [["True\nPositive", "False\nPositive"], ["False\nNegative", "True\nNegative"]]
 
 
@@ -67,12 +67,12 @@ class Scene11Mixin:
         ) as tracker:
             self.play(Write(class_title), run_time=0.8)
             self.play(Write(numeric_title), run_time=0.8)
-            self.wait(4.4)
+            self.wait(5.5)
             self.play(FadeIn(row1), FadeIn(row2), run_time=1.3)  # "classification model...right category"
             self.wait(7.7)
             self.play(
                 Create(number_line), FadeIn(pred_dot), FadeIn(actual_dot), FadeIn(pred_label), FadeIn(actual_label),
-                run_time=1.3,
+                run_time=2.0,
             )  # "numeric prediction model...continuous"
             self.play(GrowFromCenter(gap_arrow), run_time=0.8)  # "how close the predictions are to actual"
             self.wait(tracker.get_remaining_duration())
