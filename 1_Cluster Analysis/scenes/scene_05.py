@@ -8,7 +8,7 @@ from manim import *
 from manim_voiceover import VoiceoverScene
 
 from tts import get_speech_service
-from common import make_customer_axes, make_customer_clusters
+from common import make_customer_axes, make_customer_clusters, Text
 
 
 class Scene05Mixin:

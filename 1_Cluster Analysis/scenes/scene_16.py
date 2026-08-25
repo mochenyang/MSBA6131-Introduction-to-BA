@@ -9,7 +9,7 @@ from manim import *
 from manim_voiceover import VoiceoverScene
 
 from tts import get_speech_service
-from common import CLUSTER_POINTS_2D, HIER_COLORS, NATURAL_GROUPS
+from common import CLUSTER_POINTS_2D, HIER_COLORS, NATURAL_GROUPS, Text
 
 # Reuse one of the three shared groups (rather than a fresh one-off cluster)
 # so this scene's illustration is literally the same running example.

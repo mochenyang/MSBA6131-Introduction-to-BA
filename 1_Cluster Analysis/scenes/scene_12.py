@@ -9,7 +9,7 @@ from manim import *
 from manim_voiceover import VoiceoverScene
 
 from tts import get_speech_service
-from common import encircle, make_mini_dendrogram, make_mini_kmeans_scatter
+from common import encircle, make_mini_dendrogram, make_mini_kmeans_scatter, Text
 
 # Generic two-cluster illustration reused by both boxes in this scene only.
 CLUSTER_P_COLOR = BLUE

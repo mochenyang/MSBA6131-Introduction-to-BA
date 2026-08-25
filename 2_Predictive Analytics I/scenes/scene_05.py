@@ -9,7 +9,7 @@ from manim import *
 from manim_voiceover import VoiceoverScene
 
 from tts import get_speech_service
-from common import make_pipeline_diagram, make_gear, TRAIN_COLOR, VALIDATION_COLOR
+from common import make_pipeline_diagram, make_gear, TRAIN_COLOR, VALIDATION_COLOR, Text
 
 
 class Scene05Mixin:

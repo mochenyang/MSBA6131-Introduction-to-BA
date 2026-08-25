@@ -1,5 +1,33 @@
 import numpy as np
 from manim import *
+from manim import Text as _ManimText
+
+# Manim's Text (Pango-backed) renders visible glyph-spacing artifacts at
+# small font sizes -- confirmed empirically (Predictive Analytics I unit):
+# font_size=40 renders "Training Error" cleanly, font_size=14 renders it as
+# "Train in g Error" (gaps mid-word, not at word boundaries). Root cause is
+# glyph-cluster advance-width rounding in the Pango/SVG pipeline, which is a
+# much bigger fraction of a small letter's width than a large one.
+#
+# This drop-in replacement always renders at a safe base size and scales
+# down to whatever font_size was actually requested, so every call site
+# keeps its exact `Text(..., font_size=14)` signature -- only the import
+# needs to change. Every scene file should get `Text` from here (import it
+# from `common` *after* `from manim import *`, so it shadows manim's), and
+# every Text(...) call inside this module's own helpers below picks it up
+# automatically too, since this class definition already shadows manim's
+# Text for the rest of this file.
+TEXT_SAFE_BASE_SIZE = 40
+
+
+class Text(_ManimText):
+    def __init__(self, text, font_size=48, **kwargs):
+        if font_size < TEXT_SAFE_BASE_SIZE:
+            super().__init__(text, font_size=TEXT_SAFE_BASE_SIZE, **kwargs)
+            self.scale(font_size / TEXT_SAFE_BASE_SIZE)
+        else:
+            super().__init__(text, font_size=font_size, **kwargs)
+
 
 # Shared palette for the three Walmart customer segments, reused whenever
 # that scatter plot recurs (definition-of-clustering, cohesion/separation, etc.)

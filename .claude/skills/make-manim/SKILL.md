@@ -57,6 +57,8 @@ BUDGET_CONSTRAINED_COLOR = BLUE
 
 Never hardcode a raw color for something that recurs across scenes — always go through the shared constant, so a later palette change is a one-line edit.
 
+**Also add the small-font-safe `Text` wrapper to `common.py` now** (see `references/visual_techniques.md` → Small Font Sizes) — every unit ends up with legends, footnotes, or node labels at `font_size` well under 40, and manim's `Text` renders those with visible glyph-spacing artifacts in this environment. Define the wrapper once per unit, in `common.py`, and have every scene file `from common import Text, ...` (after `from manim import *`, so it shadows manim's) instead of relying on the wildcard import. Doing this at Step 1 means no scene ever needs retrofitting later; skipping it is a repeat of a real bug found (and fixed unit-wide) in the Predictive Analytics I unit.
+
 ## Step 2: Write each scene as `scenes/scene_NN.py`
 
 Two-digit, zero-padded (`scene_01.py`, ... `scene_12.py`). Each file has exactly this shape:

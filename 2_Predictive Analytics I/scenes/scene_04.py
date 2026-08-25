@@ -9,6 +9,7 @@ from manim import *
 from manim_voiceover import VoiceoverScene
 
 from tts import get_speech_service
+from common import Text
 
 SIMPLE_MODEL_COLOR = BLUE
 OVERFIT_MODEL_COLOR = RED

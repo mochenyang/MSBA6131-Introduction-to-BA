@@ -8,7 +8,7 @@ from manim import *
 from manim_voiceover import VoiceoverScene
 
 from tts import get_speech_service
-from common import make_mini_dendrogram, make_mini_kmeans_scatter
+from common import make_mini_dendrogram, make_mini_kmeans_scatter, Text
 
 
 class Scene09Mixin:

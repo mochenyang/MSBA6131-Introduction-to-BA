@@ -8,7 +8,7 @@ from manim import *
 from manim_voiceover import VoiceoverScene
 
 from tts import get_speech_service
-from common import make_tree_node, make_tree_edge
+from common import make_tree_node, make_tree_edge, Text
 
 # Axes convention for this scene: X2 is the horizontal axis, X1 the
 # vertical axis -- matching the plan's "horizontal line at X1 = alpha" /

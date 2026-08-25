@@ -8,7 +8,7 @@ from manim import *
 from manim_voiceover import VoiceoverScene
 
 from tts import get_speech_service
-from common import make_pipeline_diagram, make_gear
+from common import make_pipeline_diagram, make_gear, Text
 
 
 class Scene03Mixin:

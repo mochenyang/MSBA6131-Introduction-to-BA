@@ -8,7 +8,7 @@ from manim import *
 from manim_voiceover import VoiceoverScene
 
 from tts import get_speech_service
-from common import make_tree_node, make_tree_edge
+from common import make_tree_node, make_tree_edge, Text
 
 DECISION_NODE_COLOR = BLUE
 LEAF_NODE_COLOR = GREEN

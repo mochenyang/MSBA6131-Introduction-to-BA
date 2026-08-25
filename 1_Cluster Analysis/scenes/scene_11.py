@@ -9,7 +9,7 @@ from manim import *
 from manim_voiceover import VoiceoverScene
 
 from tts import get_speech_service
-from common import CLUSTER_POINTS_2D, KMEANS_COLORS, KMEANS_INIT_IDX, kmeans_iterations
+from common import CLUSTER_POINTS_2D, KMEANS_COLORS, KMEANS_INIT_IDX, kmeans_iterations, Text
 
 N_POINTS = len(CLUSTER_POINTS_2D)
 SCATTER_CENTER = UP * 0.3

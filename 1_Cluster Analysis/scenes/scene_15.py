@@ -10,7 +10,7 @@ from manim_voiceover import VoiceoverScene
 from scipy.cluster.vq import kmeans2
 
 from tts import get_speech_service
-from common import CLUSTER_POINTS_2D, HIER_COLORS, NATURAL_GROUPS
+from common import CLUSTER_POINTS_2D, HIER_COLORS, NATURAL_GROUPS, Text
 
 N_POINTS = len(CLUSTER_POINTS_2D)
 MINI_CENTER = LEFT * 5.5

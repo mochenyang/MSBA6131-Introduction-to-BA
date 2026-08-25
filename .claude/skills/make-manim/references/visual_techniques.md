@@ -87,6 +87,27 @@ Text("while True:", font_size=22, t2c={"while": PURPLE_B, "True": PURPLE_B})
 
 This reads as "syntax-highlighted" enough for a pseudocode box without depending on the broken mobject. If a future manim upgrade might have fixed `Code`, verify by rendering a multi-line snippet standalone and inspecting the actual frame (not just checking it imports/constructs without error) before trusting it in a real scene.
 
+### Small Font Sizes
+**`Text(..., font_size=X)` with `X` well under ~40 renders with visible glyph-spacing artifacts** in this project's manim version — confirmed empirically: `Text("Training Error", font_size=40)` renders clean; the same string at `font_size=14` renders as "Train in g Error", with gaps appearing *inside* words (not at word boundaries) rather than at consistent letter positions. This is a real, silent bug: no error, no warning, just wrong-looking text — the kind of thing that's easy to miss in a quick render check and only shows up on close frame inspection. Root cause: manim's `Text` is Pango-backed, and small-font glyph rasterization rounds each character's advance-width to the pixel grid before manim lays out the per-character submobjects from that data; at large sizes the rounding error is a negligible fraction of letter width, at small sizes it's a large enough fraction to be visible.
+
+Nearly every scene ends up wanting a legend, footnote, axis label, or node label well under 40 — so fix this once per unit rather than per call site. Define this in `common.py` (see Step 1) and have every scene file import `Text` from `common` instead of `manim`:
+
+```python
+from manim import Text as _ManimText
+
+TEXT_SAFE_BASE_SIZE = 40
+
+class Text(_ManimText):
+    def __init__(self, text, font_size=48, **kwargs):
+        if font_size < TEXT_SAFE_BASE_SIZE:
+            super().__init__(text, font_size=TEXT_SAFE_BASE_SIZE, **kwargs)
+            self.scale(font_size / TEXT_SAFE_BASE_SIZE)
+        else:
+            super().__init__(text, font_size=font_size, **kwargs)
+```
+
+Every existing `Text(..., font_size=14)` call site keeps its exact signature — only the import changes (`from common import Text, ...` placed after `from manim import *`, so it shadows manim's name). Since this class definition also shadows `Text` within `common.py`'s own module namespace, every `Text(...)` call inside shared helpers there (`make_tree_node`, `make_confusion_matrix`, etc.) picks up the fix automatically too, with no changes to those helpers needed. `MathTex`/`Tex` are LaTeX-rendered, not Pango, and are unaffected — this fix is `Text`-only.
+
 ---
 
 ## Common Visual Metaphors

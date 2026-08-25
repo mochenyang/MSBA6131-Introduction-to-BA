@@ -8,7 +8,7 @@ from manim import *
 from manim_voiceover import VoiceoverScene
 
 from tts import get_speech_service
-from common import make_confusion_matrix, CORRECT_COLOR, ERROR_COLOR
+from common import make_confusion_matrix, CORRECT_COLOR, ERROR_COLOR, Text
 
 FRAUD_PRED_LABELS = ("Predicted: Fraud", "Predicted: Non-Fraud")
 # Short column labels -- "Actual: Non-Fraudulent" would collide with its

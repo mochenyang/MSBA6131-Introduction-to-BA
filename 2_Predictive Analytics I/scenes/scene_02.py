@@ -9,6 +9,7 @@ from manim import *
 from manim_voiceover import VoiceoverScene
 
 from tts import get_speech_service
+from common import Text
 
 YES_CLASS_COLOR = ORANGE
 NO_CLASS_COLOR = PURPLE

@@ -10,6 +10,7 @@ from manim_voiceover import VoiceoverScene
 
 from tts import get_speech_service
 from common import (
+    Text,
     CLUSTER_POINTS_2D,
     HIER_COLORS,
     NATURAL_GROUPS,

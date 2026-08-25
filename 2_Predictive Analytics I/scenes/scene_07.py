@@ -8,6 +8,7 @@ from manim import *
 from manim_voiceover import VoiceoverScene
 
 from tts import get_speech_service
+from common import Text
 
 CLASS1_COLOR = ORANGE
 CLASS2_COLOR = TEAL

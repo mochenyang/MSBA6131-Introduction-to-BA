@@ -9,6 +9,7 @@ from manim_voiceover import VoiceoverScene
 
 from tts import get_speech_service
 from common import (
+    Text,
     BRAND_LOYALIST_COLOR,
     BUDGET_CONSTRAINED_COLOR,
     PRICE_SENSITIVE_COLOR,
