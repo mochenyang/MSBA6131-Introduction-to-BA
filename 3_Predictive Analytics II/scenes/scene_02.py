@@ -53,7 +53,7 @@ class Scene02Mixin:
             )
         ) as tracker:
             self.play(Write(title), run_time=2)
-            self.wait(8.0)
+            self.wait(7.8)
             self.play(FadeIn(bullet1, shift=UP * 0.15), run_time=1)
             self.wait(4.6)
             self.play(FadeIn(bullet2, shift=UP * 0.15), run_time=1)

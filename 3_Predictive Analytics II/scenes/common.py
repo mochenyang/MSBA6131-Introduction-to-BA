@@ -171,6 +171,7 @@ def make_bayes_formula():
     return {
         "posterior": posterior, "equals": equals, "likelihood": likelihood, "times": times,
         "prior": prior, "evidence": evidence, "frac_line": frac_line, "numerator": numerator,
+        "frac_group": frac_group,
         "posterior_label": posterior_label, "likelihood_label": likelihood_label,
         "prior_label": prior_label, "evidence_label": evidence_label,
         "group": full,
@@ -197,8 +198,16 @@ def annotate_bayes_formula(parts):
 # scene_06 under the class-conditional-independence assumption, extended
 # with one more term (an irrelevant feature) in scene_07.
 # ----------------------------------------------------------------------
-def make_factorized_likelihood(k=3, ci_label="C_i"):
-    terms = [MathTex(f"P(x_{{{i}}} \\mid {ci_label})") for i in range(1, k + 1)]
+def make_factorized_likelihood(k=3, ci_label="C_i", labels=None):
+    """labels: optional list of k raw LaTeX strings used verbatim as each
+    term's content (e.g. ["P(x_1 \\mid C_i)", "\\cdots", "P(x_k \\mid C_i)"]),
+    overriding the default numbered P(x_i|Ci) terms. Structure (k terms,
+    k-1 signs) is the same either way, so callers that index positionally
+    (e.g. scene_07 appending an x0 term) work unchanged."""
+    if labels is not None:
+        terms = [MathTex(lbl) for lbl in labels]
+    else:
+        terms = [MathTex(f"P(x_{{{i}}} \\mid {ci_label})") for i in range(1, k + 1)]
     signs = [MathTex("\\times") for _ in range(k - 1)]
     parts = []
     for i, t in enumerate(terms):

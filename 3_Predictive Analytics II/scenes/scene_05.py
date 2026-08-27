@@ -135,15 +135,16 @@ class Scene05Mixin:
 
         self.wait()
 
-        # Stash for scene_06 (denominator already greyed/crossed, numerator boxed).
+        # Stash the formula parts (not their on-screen state) for scene_06,
+        # which does its own fresh reveal rather than inheriting a leftover
+        # -- so everything here fades out, leaving a clean scene.
         self.bayes_formula_parts = parts
-        self.bayes_formula_annot = annot
-        self.bayes_formula_title = title
 
         self.play(
             FadeOut(title),
             FadeOut(VGroup(parts["posterior_label"], parts["likelihood_label"], parts["prior_label"])),
             FadeOut(annot["ignore_label"]), FadeOut(annot["maximize_label"]), FadeOut(goal_statement),
+            FadeOut(parts["group"]), FadeOut(annot["box"]), FadeOut(annot["cross"]),
         )
 
 
