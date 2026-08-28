@@ -243,7 +243,7 @@ class Scene06Mixin:
             
             self.play(formula["likelihood"].animate.set_color(YELLOW), run_time=1.0)
             self.play(FadeIn(cci_label), run_time=1.0)
-            self.wait(15.0)
+            self.wait(16.0)
             self.play(FadeIn(naive_label), run_time=1.0)
             self.wait(tracker.get_remaining_duration())
 
@@ -276,8 +276,8 @@ class Scene06Mixin:
             # addressable term-by-term after the CCI transform above: [0] is
             # the x1 term, [4] is the xk term (index 2, "cdots", is between).
             self.play(formula["likelihood"][0].animate.set_color(YELLOW), run_time=1.0)
-            self.play(Create(x1_box), run_time=1.0)
-            self.play(FadeIn(x1_exp), run_time=1.0)            
+            self.play(FadeIn(x1_exp), run_time=1.0)
+            self.play(Create(x1_box), run_time=1.0)            
             self.wait(tracker.get_remaining_duration())
 
         frac_expr = MathTex(
@@ -297,11 +297,10 @@ class Scene06Mixin:
             self.play(FadeIn(zero_big, scale=1.5), run_time=1.3)
             self.wait(tracker.get_remaining_duration())
 
-        laplace_expr = MathTex("\\dfrac{\\text{count}(x_1, C_i) + 1}{\\text{count}(C_i) + m}").scale(0.6)
+        laplace_expr = MathTex("\\dfrac{\\text{count}(x_1, C_i) + 1}{\\text{count}(C_i) + 2}").scale(0.6)
         laplace_note = Text(
-            "+1: one pretend count in this class\n"
-            "+2: one pretend count added to each\n"
-            "of the m possible classes",
+            "+1: one pretend count in this category\n"
+            "+2: number of possible values the feature can take",
             font_size=13, color=YELLOW, line_spacing=1.3,
         ).next_to(laplace_expr, DOWN, buff=0.25)
         laplace_box_group = VGroup(laplace_expr, laplace_note)
@@ -310,7 +309,7 @@ class Scene06Mixin:
         # big_x1/frac_expr instead kept colliding with them given how little
         # horizontal room is left once the formula's own width is accounted
         # for. zero_big has already faded by the time this is shown.
-        laplace_label = Text("Laplace correction", font_size=16, color=YELLOW).next_to(frac_expr, DOWN, buff=0.25)
+        laplace_label = Text("Laplace Correction", font_size=16, color=YELLOW).next_to(frac_expr, DOWN, buff=0.25)
         laplace_display = VGroup(laplace_box, laplace_box_group).next_to(laplace_label, DOWN, buff=0.15)
 
         with self.voiceover(
@@ -319,9 +318,8 @@ class Scene06Mixin:
                 "non-zero values to both the numerator and denominator of "
                 "the fraction. Concretely, we add 1 to the numerator, as if "
                 "we'd observed one extra data point in that category, and "
-                "add the number of possible categories -- 2 here, since x1 "
-                "is binary -- to the denominator, one extra pretend count "
-                "for every category."
+                "add the number of possible values the feature can take -- 2 here, since x1 "
+                "is binary -- to the denominator."
             )
         ) as tracker:
             self.play(FadeIn(laplace_label), Create(laplace_box), run_time=1.0)
@@ -330,102 +328,62 @@ class Scene06Mixin:
 
         self.play(
             FadeOut(frac_expr), FadeOut(laplace_display), FadeOut(laplace_label),
-            FadeOut(x1_exp), FadeOut(x1_box),
+            FadeOut(x1_exp), FadeOut(x1_box), FadeOut(zero_big),
             formula["likelihood"][0].animate.set_color(WHITE),
         )
 
-        # -- Single out P(xk | Ci): continuous feature, discretized ------
-        # Reuses the same central spot as the x1 walkthrough (that cluster
-        # has already faded out by now), with the axes stacked below it.
-        big_xk, big_xk_box = self.scene6_singled_out_copy(factorized["terms"][2], RIGHT * 2.3 + UP * 0.7)
-
+        # -- Single out P(xk | Ci): continuous feature ------
+        xk_exp = MathTex(
+            "\\text{e.g., } P(x_k \\mid C_1)"
+            ).scale(0.7).next_to(table, RIGHT, buff=1.5).move_to(RIGHT * 1.0 + UP * 0.5)
+        xk_box = SurroundingRectangle(tbl["xk_col"][1:4], color=YELLOW, buff=0.1)
+        xk_label1 = Text("• Discretize the feature, or", font_size=14, color=YELLOW).next_to(xk_exp, DOWN, buff=0.25)
+        xk_label2 = Text("• Use the distribution density function", font_size=14, color=YELLOW).next_to(xk_label1, DOWN, buff=0.2, aligned_edge=LEFT)
+                
         axes = Axes(
             x_range=[0, 6, 1], y_range=[0, 1, 0.5], x_length=5.5, y_length=1.9,
-            axis_config={"include_ticks": False},
-        ).move_to(RIGHT * 2.3 + DOWN * 1.6)
-        xk_vals = [float(v) for v in TABLE_XK]
-        num_dots = VGroup(*[Dot(axes.coords_to_point(v, 0), color=GREY_B, radius=0.07) for v in xk_vals])
-        num_label = Text("Actual x_k values from the table", font_size=15, color=GREY_B).next_to(axes, UP, buff=0.15)
-
-        with self.voiceover(
-            text=(
-                "If the feature is numerical, we can't compute a simple "
-                "fraction, since it can take infinitely many possible "
-                "values. In that case, we either discretize the feature and "
-                "treat it as categorical, or assume it follows some "
-                "distribution and use that distribution's density function "
-                "to compute the conditional probability."
-            )
-        ) as tracker:
-            self.play(formula["likelihood"][4].animate.set_color(YELLOW), run_time=0.8)
-            self.play(TransformFromCopy(factorized["terms"][2], big_xk), run_time=1.2)
-            self.play(Create(big_xk_box), run_time=0.8)
-            self.play(FadeIn(num_label), Create(axes), run_time=1.3)
-            self.play(FadeIn(num_dots, lag_ratio=0.1), run_time=1.0)
-            self.wait(tracker.get_remaining_duration())
-
-        # Bin edges at 0/2/4/6 -- discretizing the *actual* xk values shown
-        # above (1.2, 3.4, 2.1, 0.5, 2.8): bin 0 = {0.5, 1.2}, bin 1 =
-        # {2.1, 2.8, 3.4}, bin 2 = {} (empty, but still a valid bucket).
-        bin_colors = [BLUE, PURPLE_B, GREEN]
-        bin_edges = [(0, 2), (2, 4), (4, 6)]
-        bins = VGroup(*[
-            Rectangle(width=axes.x_length / 3, height=0.5, color=bin_colors[i], fill_opacity=0.2, stroke_width=1.5)
-            .move_to(axes.coords_to_point(1 + 2 * i, 0.25))
-            for i in range(3)
-        ])
-        bin_label = Text("discretize into bins", font_size=15, color=BLUE).next_to(axes, DOWN, buff=0.2)
-
-        def bin_of(v):
-            for i, (lo, hi) in enumerate(bin_edges):
-                if lo <= v < hi:
-                    return i
-            return len(bin_edges) - 1
-
-        with self.voiceover(
-            text=(
-                "Concretely, discretizing means we look at where each "
-                "actual data point falls and assign it to a bin -- here, "
-                "the five x_k values sort into these three ranges, and the "
-                "conditional probability becomes the fraction of class Ci "
-                "points that fall in xk's bin, just like the categorical "
-                "case."
-            )
-        ) as tracker:
-            self.play(FadeIn(bins), FadeIn(bin_label), run_time=1.3)
-            self.play(
-                *[num_dots[i].animate.set_color(bin_colors[bin_of(v)]) for i, v in enumerate(xk_vals)],
-                run_time=1.3,
-            )
-            self.wait(tracker.get_remaining_duration())
-
+            axis_config={"include_ticks": False, "tip_height": 0.1, "tip_width": 0.1},
+        ).move_to(RIGHT * 2.3 + DOWN * 1.8)
         curve = axes.plot(lambda x: 0.9 * np.exp(-((x - 2.2) ** 2) / 1.2), color=GREEN, x_range=[0, 6])
-        density_label = Text("or a density curve", font_size=15, color=GREEN).next_to(bin_label, DOWN, buff=0.15)
         highlight_x = 2.1
         dashed = DashedLine(
             axes.coords_to_point(highlight_x, 0),
             axes.coords_to_point(highlight_x, 0.9 * np.exp(-((highlight_x - 2.2) ** 2) / 1.2)),
             color=GREEN,
         )
-
+        
         with self.voiceover(
             text=(
-                "Alternatively, we could assume the feature follows some "
-                "distribution and use its density function directly -- the "
-                "curve's height at a given x_k value stands in for the "
-                "conditional probability there."
+                "If the feature is numerical, like x_k, we can't compute a simple "
+                "fraction, since a numerical feature can take infinitely many possible "
+                "values. In that case, we either discretize the feature and "
+                "treat it as categorical, or assume it follows some "
+                "distribution and use that distribution's density function "
+                "to compute the conditional probability. Specifically, suppose the curve "
+                "represents the probability density function of the feature's distribution. "
+                "The curve's height at a given x_k value can stand in for the conditional probability there."
             )
         ) as tracker:
-            self.play(FadeOut(bins), FadeOut(bin_label), Create(curve), FadeIn(density_label), run_time=1.5)
+            self.play(formula["likelihood"][4].animate.set_color(YELLOW), run_time=0.8)
+            self.play(FadeIn(xk_exp), run_time=1.0)
+            self.play(Create(xk_box), run_time=1.0)
+            self.wait(7.0)
+            self.play(FadeIn(xk_label1), run_time=1.0)
+            self.wait(2.0)
+            self.play(FadeIn(xk_label2), run_time=1.0)
+            self.wait(8.0)
+            self.play(Create(axes), run_time=1.0)
+            self.play(Create(curve), run_time=1.0)
             self.play(Create(dashed), run_time=1.0)
             self.wait(tracker.get_remaining_duration())
 
         self.wait()
         self.play(
             FadeOut(title), FadeOut(table), FadeOut(formula_display),
-            FadeOut(big_xk), FadeOut(big_xk_box),
-            FadeOut(axes), FadeOut(num_dots), FadeOut(num_label),
-            FadeOut(curve), FadeOut(density_label), FadeOut(dashed),
+            FadeOut(xk_label1), FadeOut(xk_label2),
+            FadeOut(xk_exp), FadeOut(xk_box),
+            FadeOut(axes), 
+            FadeOut(curve), FadeOut(dashed),
         )
 
         # Stash for scene_07 (append an irrelevant-feature term). These

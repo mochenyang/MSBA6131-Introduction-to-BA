@@ -136,11 +136,13 @@ class Scene02Mixin:
 
         self.wait()
         self.play(
-            FadeOut(title), FadeOut(knn_bar), FadeOut(tree_bar), FadeOut(slider), FadeOut(slider_label),
-            FadeOut(majority_label), FadeOut(num_line["group"]),
+            FadeOut(title), FadeOut(knn["group"]), FadeOut(tree["group"]), FadeOut(knn_bar), FadeOut(tree_bar),
+            FadeOut(slider), FadeOut(slider_label), FadeOut(majority_label), FadeOut(num_line["group"]),
         )
 
-        # Stash for scene_03 (shrunk icons) and scene_08 (cutoff line reuse).
+        # Stash for scene_03 (shrunk icons, taken via .copy() there so fading
+        # the originals out above doesn't affect scene_03's reuse) and
+        # scene_08 (cutoff line reuse).
         self.scene02_knn_group = knn["group"]
         self.scene02_tree_group = tree["group"]
         self.scene02_number_line = num_line
