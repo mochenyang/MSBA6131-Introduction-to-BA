@@ -14,8 +14,8 @@ from common import (
     NEG_COLOR,
     HIGHLIGHT_COLOR,
     DATA_CURVE_COLOR,
-    CURVE_A_COLOR,
-    CURVE_B_COLOR,
+    PERFECT_CLASSIFIER_COLOR,
+    REGULAR_CLASSIFIER_COLOR,
     N_RECORDS,
     NUM_POS,
     NUM_NEG,
@@ -25,8 +25,8 @@ from common import (
     make_ranked_table,
     make_cutoff_line,
     make_unit_axes,
-    make_illustrative_curves,
 )
+from scene_04 import Scene04Mixin
 
 
 class Scene05Mixin:
@@ -139,12 +139,12 @@ class Scene05Mixin:
             self.play(FadeIn(left_axes["group"]), FadeIn(illustrative["group"]), run_time=1.3)
             self.wait(2.0)
             self.play(
-                Circumscribe(VGroup(illustrative["curves"]["b"], illustrative["labels"]["b"]), color=CURVE_B_COLOR),
+                Circumscribe(VGroup(illustrative["curves"]["b"], illustrative["labels"]["b"]), color=REGULAR_CLASSIFIER_COLOR),
                 run_time=2.0,
             )
             self.wait(3.5)
             self.play(
-                Circumscribe(VGroup(illustrative["curves"]["a"], illustrative["labels"]["a"]), color=CURVE_A_COLOR),
+                Circumscribe(VGroup(illustrative["curves"]["a"], illustrative["labels"]["a"]), color=PERFECT_CLASSIFIER_COLOR),
                 run_time=2.0,
             )
             self.wait(tracker.get_remaining_duration())
@@ -233,9 +233,11 @@ class Scene05(VoiceoverScene, Scene05Mixin):
         self.scene03_axes_data = axes_data
 
     def _fixture_scene_04(self):
-        # Stand-in for scene_04's four-curve ROC comparison plot.
-        left_axes = make_unit_axes("False Positive Rate", "True Positive Rate", x_length=4.2, y_length=3.9)
+        # Stand-in for scene_04's three-curve (A, B, C) ROC comparison plot --
+        # reuses scene_04's own curve builder so this preview always matches
+        # the real hand-off instead of duplicating its construction.
+        left_axes = make_unit_axes("FPR", "TPR", x_length=4.2, y_length=3.9, x_max=1.08, y_max=1.08)
         left_axes["group"].scale(0.85).move_to(LEFT * 3.6 + DOWN * 0.4)
-        illustrative = make_illustrative_curves(left_axes["axes"])
+        illustrative = Scene04Mixin.scene4_illustrative_curves(left_axes["axes"])
         self.scene04_left_axes = left_axes
         self.scene04_illustrative = illustrative

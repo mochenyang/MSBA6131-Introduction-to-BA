@@ -37,10 +37,10 @@ DATA_CURVE_COLOR = "#58C4DD"  # the one running example's ROC / cumulative
 # top-left = better" reading. Deliberately distinct from DATA_CURVE_COLOR so
 # the one running example is never visually confused with these generic
 # stand-ins.
-CURVE_A_COLOR = GREEN         # near-perfect
-CURVE_B_COLOR = PURPLE        # good
-CURVE_C_COLOR = MAROON        # mediocre
-CURVE_D_COLOR = GREY_B        # random / diagonal
+PERFECT_CLASSIFIER_COLOR = GREEN   # near-perfect
+REGULAR_CLASSIFIER_COLOR = PURPLE  # good
+CURVE_C_COLOR = MAROON             # mediocre
+RANDOM_CLASSIFIER_COLOR = GREY_B   # random / diagonal
 
 
 # ----------------------------------------------------------------------
@@ -287,10 +287,16 @@ def build_data_curve(axes, points, color=DATA_CURVE_COLOR, dot_radius=0.05, stro
 # by scene_05's fixture to preview its "bring back scene 4's four curves"
 # beat in isolation.
 # ----------------------------------------------------------------------
+CURVE_B_POINTS = [(0, 0), (0.15, 0.55), (0.4, 0.8), (0.7, 0.93), (1, 1)]
+
+
 def make_illustrative_curves(axes):
     curve_defs = {
-        "a": ([(0, 0), (0, 0.95), (0.05, 1), (1, 1)], CURVE_A_COLOR, "A"),
-        "b": ([(0, 0), (0.15, 0.55), (0.4, 0.8), (0.7, 0.93), (1, 1)], CURVE_B_COLOR, "B"),
+        # Right angle, not a smooth bow -- a perfect classifier ranks every
+        # positive above every negative, so its curve climbs to TPR=1 before
+        # FPR ever leaves 0, then runs flat right.
+        "a": ([(0, 0), (0, 1), (1, 1)], PERFECT_CLASSIFIER_COLOR, "A"),
+        "b": (CURVE_B_POINTS, REGULAR_CLASSIFIER_COLOR, "B"),
         "c": ([(0, 0), (0.25, 0.35), (0.5, 0.58), (0.75, 0.82), (1, 1)], CURVE_C_COLOR, "C"),
     }
     curves = {}
@@ -298,10 +304,19 @@ def make_illustrative_curves(axes):
     for key, (pts, color, name) in curve_defs.items():
         coords = [axes.c2p(x, y) for x, y in pts]
         curve = VMobject(color=color, stroke_width=3.5)
-        curve.set_points_smoothly(coords)
+        if key == "a":
+            curve.set_points_as_corners(coords)
+        else:
+            curve.set_points_smoothly(coords)
         curves[key] = curve
-        labels[key] = Text(name, font_size=18, color=color).next_to(coords[-2], UP, buff=0.12)
-    curves["d"] = make_diagonal(axes, color=CURVE_D_COLOR)
-    labels["d"] = Text("D", font_size=18, color=CURVE_D_COLOR).next_to(axes.c2p(0.5, 0.5), DOWN, buff=0.35)
+        if key == "a":
+            # coords[-2] is the (0,1) corner, right where the y-axis
+            # arrowhead sits -- label the vertical segment's midpoint
+            # instead so "A" doesn't render underneath/behind the arrow tip.
+            labels[key] = Text(name, font_size=18, color=color).next_to(axes.c2p(0, 0.5), RIGHT, buff=0.12)
+        else:
+            labels[key] = Text(name, font_size=18, color=color).next_to(coords[-2], UP, buff=0.12)
+    curves["d"] = make_diagonal(axes, color=RANDOM_CLASSIFIER_COLOR)
+    labels["d"] = Text("D", font_size=18, color=RANDOM_CLASSIFIER_COLOR).next_to(axes.c2p(0.5, 0.5), DOWN, buff=0.35)
     group = VGroup(*curves.values(), *labels.values())
     return {"curves": curves, "labels": labels, "group": group}

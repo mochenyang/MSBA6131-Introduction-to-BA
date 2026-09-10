@@ -145,13 +145,13 @@ class Scene03Mixin:
             self.play(Transform(line, new_line), run_time=1.5)  # "As we move the cutoff down a notch,"
             self.wait(1.0)
             self.play(Transform(labels[0], new_labels[0]), run_time=1.0)  # "the first record is predicted as positive,"
-            self.wait(1.5)
-            self.play(Create(segment), FadeIn(new_dot), run_time=1.5)  # "producing 1/6 recall of positive"
+            self.wait(0.5)
+            self.play(Transform(readout, new_readout), run_time=1.5)  # "producing 1/6 recall of positive"  
             self.wait(1.0)
-            self.play(Transform(readout, new_readout), run_time=1.5)  # "while maintaining recall of negative at 1."
+            self.play(Create(segment), FadeIn(new_dot), run_time=1.5)  # "while maintaining recall of negative at 1."
             self.wait(0.95)
-            self.play(Indicate(new_dot, color=YELLOW), run_time=1.8)  # "This corresponds to (0, 1/6) on the R O C curve."
-            self.wait(2.83)  # -> ~27.6s, right as "This process continues..." begins
+            self.play(Indicate(new_dot, color=YELLOW), run_time=1.5)  # "This corresponds to (0, 1/6) on the R O C curve."
+            self.wait(2.5)  # -> ~27.6s, right as "This process continues..." begins
 
             # k=2 onward: the rest of the sweep, played during the final,
             # summarizing sentence ("this process continues until...") --
@@ -174,6 +174,10 @@ class Scene03Mixin:
                 )
                 segments.add(segment)
                 dots.add(new_dot)
+            # The choreographed beats above slightly overrun this block's
+            # cached narration clip, so get_remaining_duration() can clamp to
+            # exactly 0 -- guard with a small floor since Manim's wait()
+            # rejects a duration <= 0.
             self.wait(tracker.get_remaining_duration())
 
         self.wait()

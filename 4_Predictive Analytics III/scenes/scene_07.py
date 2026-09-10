@@ -11,7 +11,7 @@ from tts import get_speech_service
 from common import (
     Text,
     DATA_CURVE_COLOR,
-    CURVE_D_COLOR,
+    RANDOM_CLASSIFIER_COLOR,
     BETTER_COLOR,
     N_RECORDS,
     make_unit_axes,
@@ -56,7 +56,7 @@ class Scene07Mixin:
 
             dashed = DashedLine(axes.c2p(0.2, 0), axes.c2p(0.2, 1), color=GREY_B, stroke_width=2)
             model_dot = Dot(axes.c2p(0.2, cum_points[2][1]), color=DATA_CURVE_COLOR, radius=0.07)
-            random_dot = Dot(axes.c2p(0.2, 0.2), color=CURVE_D_COLOR, radius=0.07)
+            random_dot = Dot(axes.c2p(0.2, 0.2), color=RANDOM_CLASSIFIER_COLOR, radius=0.07)
             self.play(Create(dashed), run_time=1.0)
             self.play(FadeIn(model_dot), FadeIn(random_dot), run_time=1.0)
             self.wait(1.5)

@@ -11,8 +11,8 @@ from tts import get_speech_service
 from common import (
     Text,
     BETTER_COLOR,
-    CURVE_A_COLOR,
-    CURVE_D_COLOR,
+    PERFECT_CLASSIFIER_COLOR,
+    RANDOM_CLASSIFIER_COLOR,
     DATA_CURVE_COLOR,
     N_RECORDS,
     make_ranked_table,
@@ -86,8 +86,8 @@ class Scene06Mixin:
             self.wait(tracker.get_remaining_duration())
 
         illustrative = make_illustrative_curves(axes)
-        best_tag = Text("best", font_size=15, color=CURVE_A_COLOR).next_to(illustrative["labels"]["a"], UP, buff=0.05)
-        random_tag = Text("random classifier", font_size=14, color=CURVE_D_COLOR).next_to(
+        best_tag = Text("best", font_size=15, color=PERFECT_CLASSIFIER_COLOR).next_to(illustrative["labels"]["a"], UP, buff=0.05)
+        random_tag = Text("random classifier", font_size=14, color=RANDOM_CLASSIFIER_COLOR).next_to(
             illustrative["curves"]["d"], DOWN, buff=0.15
         )
         arrow = Arrow(
