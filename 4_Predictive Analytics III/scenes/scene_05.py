@@ -24,6 +24,7 @@ from common import (
     compute_roc_points,
     make_ranked_table,
     make_cutoff_line,
+    predicted_labels_for_cutoff,
     make_unit_axes,
 )
 from scene_04 import Scene04Mixin
@@ -39,11 +40,22 @@ class Scene05Mixin:
         lines = VGroup()
         for i in range(1, NUM_NEG):
             x = i / NUM_NEG
-            lines.add(Line(axes.c2p(x, 0), axes.c2p(x, 1), color=GREY_D, stroke_width=1, stroke_opacity=0.6))
+            lines.add(Line(axes.c2p(x, 0), axes.c2p(x, 1), color=GREY_D, stroke_width=1.5))
         for j in range(1, NUM_POS):
             y = j / NUM_POS
-            lines.add(Line(axes.c2p(0, y), axes.c2p(1, y), color=GREY_D, stroke_width=1, stroke_opacity=0.6))
+            lines.add(Line(axes.c2p(0, y), axes.c2p(1, y), color=GREY_D, stroke_width=1.5))
         return lines
+
+    @staticmethod
+    def scene5_row_highlight_box(row, color=HIGHLIGHT_COLOR, width=0.3, height=0.29):
+        """A SurroundingRectangle auto-fits to its target's glyph bounding
+        box, and "P" is measurably narrower than "N" at the same font size
+        -- stretching to a shared fixed size keeps every box in a group the
+        same size regardless of which letter it's boxing."""
+        box = SurroundingRectangle(row["actual"], color=color, buff=0.05)
+        box.stretch_to_fit_width(width)
+        box.stretch_to_fit_height(height)
+        return box
 
     @staticmethod
     def scene5_shaded_cell(axes, tp_before, fp_before):
@@ -68,25 +80,25 @@ class Scene05Mixin:
         with self.voiceover(
             text=(
                 "At this point, it is worth pausing to ask the question "
-                "of \"WHY\". Why can we look at the positions of the ROC "
+                "of \"WHY\". Why can we look at the positions of the R O C "
                 "curve to infer model performance, and why is the area "
-                "under the ROC curve also associated with performance? "
-                "Here's a useful way to think about ROC and AUC that "
+                "under the curve also associated with performance? "
+                "Here's a useful way to think about R O C and AUC that "
                 "will give you more intuition."
             )
         ) as tracker:
             self.play(Write(title), run_time=2.0)
-            self.wait(3.0)
+            self.wait(6.0)
             self.play(FadeIn(table["group"]), FadeIn(axes_data["group"]), run_time=1.5)
             self.wait(tracker.get_remaining_duration())
 
         with self.voiceover(
             text=(
-                "Remember how we built the ROC curve: sweeping down the "
+                "Recall how we built the R O C curve: sweeping down the "
                 "ranked validation data points from highest predicted "
                 "probability to lowest. Pay attention to the movements "
-                "of the ROC curve, it moves up on every positive "
-                "instance and moves right on every negative instance. "
+                "of the R O C curve, it moves UP on every positive "
+                "instance and moves RIGHT on every negative instance. "
                 "This is expected, because moving cutoff below a "
                 "positive instance would lead to one more true positive "
                 "prediction, whereas moving cutoff below a negative "
@@ -95,8 +107,10 @@ class Scene05Mixin:
             )
         ) as tracker:
             line = make_cutoff_line(table, 0)
+            labels = predicted_labels_for_cutoff(table, 0)
             dot0 = Dot(axes.c2p(*roc_points[0]), radius=0.06, color=DATA_CURVE_COLOR)
-            self.play(Create(line), FadeIn(dot0), run_time=1.2)
+            self.play(Create(line), *[FadeIn(l) for l in labels], FadeIn(dot0), run_time=1.5)
+            self.wait(6.0)
 
             dots = VGroup(dot0)
             segments = VGroup()
@@ -108,29 +122,38 @@ class Scene05Mixin:
                 box = SurroundingRectangle(row["actual"], color=move_color, buff=0.05, stroke_width=2.5)
                 move_label = Text(move_word, font_size=14, color=move_color).next_to(box, RIGHT, buff=0.15)
                 new_line = make_cutoff_line(table, k)
+                new_labels = predicted_labels_for_cutoff(table, k)
                 new_dot = Dot(axes.c2p(*roc_points[k]), radius=0.06, color=DATA_CURVE_COLOR)
                 segment = Line(dots[-1].get_center(), new_dot.get_center(), color=DATA_CURVE_COLOR, stroke_width=3.5)
-                beat = 1.3 if k <= 2 else 0.7
-                self.play(Create(box), FadeIn(move_label), Transform(line, new_line), run_time=beat * 0.5)
+                beat = 2.0
+                self.play(
+                    Create(box), FadeIn(move_label), Transform(line, new_line),
+                    *[Transform(labels[i], new_labels[i]) for i in range(len(labels))],
+                    run_time=beat * 0.5,
+                )
                 self.play(Create(segment), FadeIn(new_dot), FadeOut(box), FadeOut(move_label), run_time=beat * 0.5)
                 segments.add(segment)
                 dots.add(new_dot)
             self.wait(tracker.get_remaining_duration())
 
-        self.play(FadeOut(VGroup(table["group"], axes_data["group"], line, segments, dots)), run_time=1.0)
+        self.play(
+            FadeOut(VGroup(table["group"], axes_data["group"], line, segments, dots)),
+            *[FadeOut(l) for l in labels],
+            run_time=1.0,
+        )
 
         left_axes = self.scene04_left_axes
         illustrative = self.scene04_illustrative
 
         with self.voiceover(
             text=(
-                "This explains why an ROC curve positioned closer to "
+                "This explains why an R O C curve positioned closer to "
                 "the top-left corner indicates a better model. "
                 "Intuitively, being closer to the top-left corner means "
                 "the curve can go up for more steps before having to go "
                 "right, which implies that it correctly ranks more "
                 "positive instances ahead of negative instances based "
-                "on probability predictions. If the ROC curve goes up "
+                "on probability predictions. If the R O C curve goes up "
                 "all the way and then go right, it means that the model "
                 "correctly ranks all positive instances ahead of "
                 "negative ones, indicating a perfect classifier."
@@ -139,12 +162,12 @@ class Scene05Mixin:
             self.play(FadeIn(left_axes["group"]), FadeIn(illustrative["group"]), run_time=1.3)
             self.wait(2.0)
             self.play(
-                Circumscribe(VGroup(illustrative["curves"]["b"], illustrative["labels"]["b"]), color=REGULAR_CLASSIFIER_COLOR),
+                Circumscribe(VGroup(illustrative["curves"]["b"], illustrative["labels"]["b"]), color=YELLOW),
                 run_time=2.0,
             )
-            self.wait(3.5)
+            self.wait(16.0)
             self.play(
-                Circumscribe(VGroup(illustrative["curves"]["a"], illustrative["labels"]["a"]), color=PERFECT_CLASSIFIER_COLOR),
+                Indicate(VGroup(illustrative["curves"]["a"], illustrative["labels"]["a"]), color=PERFECT_CLASSIFIER_COLOR),
                 run_time=2.0,
             )
             self.wait(tracker.get_remaining_duration())
@@ -176,10 +199,14 @@ class Scene05Mixin:
                 "truly positive instances ahead of truly negative ones."
             )
         ) as tracker:
-            self.play(FadeIn(table["group"]), FadeIn(axes_data["group"]), FadeIn(segments), FadeIn(dots), FadeIn(line), run_time=1.3)
+            self.play(
+                FadeIn(table["group"]), FadeIn(axes_data["group"]), FadeIn(segments), FadeIn(dots), FadeIn(line),
+                *[FadeIn(l) for l in labels],
+                run_time=1.3,
+            )
             grid = self.scene5_grid_lines(axes)
-            self.play(Create(grid), run_time=1.5)
-            self.wait(1.0)
+            self.play(Create(grid), run_time=2.0)
+            self.wait(8.0)
 
             shaded = VGroup()
             for k in range(N_RECORDS):
@@ -187,21 +214,40 @@ class Scene05Mixin:
                 cls, _ = RANKED_DATA[k]
                 if cls == "P":
                     rect = self.scene5_shaded_cell(axes, tp_before, fp_before)
-                    row_box = SurroundingRectangle(table["rows"][k]["actual"], color=HIGHLIGHT_COLOR, buff=0.05)
-                    self.play(FadeIn(rect), Create(row_box), run_time=0.8)
-                    self.play(FadeOut(row_box), run_time=0.3)
+                    # One group per P instance: the P row itself plus every
+                    # N row below it (lower probability, i.e. out-ranked by
+                    # this P) -- animated as a single Create() so this is
+                    # one beat you can later separate with self.wait().
+                    outranked_boxes = VGroup(self.scene5_row_highlight_box(table["rows"][k]))
+                    for j in range(k + 1, N_RECORDS):
+                        if table["rows"][j]["class"] == "N":
+                            outranked_boxes.add(self.scene5_row_highlight_box(table["rows"][j]))
+                    # lag_ratio=0 -- Create()'s default staggers a multi-
+                    # submobject VGroup's boxes one at a time, so without
+                    # this the P row's box and its N rows' boxes never
+                    # actually appear together as one visible group.
+                    self.play(FadeIn(rect), Create(outranked_boxes, lag_ratio=0), run_time=1.0)
+                    self.play(FadeOut(outranked_boxes), run_time=1.0)
                     shaded.add(rect)
-            self.wait(1.5)
+                    self.wait(2.0)
+            self.wait(4.0)
 
-            x1_def = Text("X₁ = random instance from class P", font_size=16, color=POS_COLOR)
-            x2_def = Text("X₂ = random instance from class N", font_size=16, color=NEG_COLOR)
-            defs = VGroup(x1_def, x2_def).arrange(DOWN, aligned_edge=LEFT, buff=0.15).move_to(DOWN * 2.9 + LEFT * 3.7)
-            self.play(FadeIn(defs), run_time=1.3)
+            x1_def = VGroup(
+                MathTex("X_1", color=POS_COLOR, font_size=26),
+                Text(" = random instance from class P", font_size=16, color=POS_COLOR),
+            ).arrange(RIGHT, buff=0.1)
+            x2_def = VGroup(
+                MathTex("X_2", color=NEG_COLOR, font_size=26),
+                Text(" = random instance from class N", font_size=16, color=NEG_COLOR),
+            ).arrange(RIGHT, buff=0.1)
+            defs = VGroup(x1_def, x2_def).arrange(DOWN, aligned_edge=LEFT, buff=0.15).move_to(DOWN * 3.2 + LEFT * 3.5)
+            self.play(FadeIn(defs), run_time=1.5)
+            self.wait(5.0)
 
             formula = MathTex(
                 r"AUC = \dfrac{\text{shaded cells}}{\text{total cells}} = P\big(p(X_1) > p(X_2)\big)",
                 font_size=26,
-            ).move_to(DOWN * 3.2 + RIGHT * 1.5)
+            ).move_to(DOWN * 3.2 + RIGHT * 1.7)
             self.play(Write(formula), run_time=2.2)
             self.wait(tracker.get_remaining_duration())
 
@@ -209,6 +255,7 @@ class Scene05Mixin:
         self.play(
             FadeOut(title), FadeOut(table["group"]), FadeOut(axes_data["group"]), FadeOut(segments), FadeOut(dots),
             FadeOut(line), FadeOut(grid), FadeOut(shaded), FadeOut(defs), FadeOut(formula),
+            *[FadeOut(l) for l in labels],
         )
 
 
@@ -227,8 +274,8 @@ class Scene05(VoiceoverScene, Scene05Mixin):
         # scratch, so no curve/cutoff-line state needs to be pre-built here.
         table = make_ranked_table()
         table["group"].move_to(LEFT * 4.3)
-        axes_data = make_unit_axes("False Positive Rate", "True Positive Rate")
-        axes_data["group"].scale(0.85).move_to(RIGHT * 3.6 + DOWN * 0.3)
+        axes_data = make_unit_axes("FPR", "TPR", x_length=4.2, y_length=3.9, x_max=1.08, y_max=1.08)
+        axes_data["group"].move_to(RIGHT * 3.0 + DOWN * 0.3)
         self.scene03_table = table
         self.scene03_axes_data = axes_data
 
@@ -237,7 +284,7 @@ class Scene05(VoiceoverScene, Scene05Mixin):
         # reuses scene_04's own curve builder so this preview always matches
         # the real hand-off instead of duplicating its construction.
         left_axes = make_unit_axes("FPR", "TPR", x_length=4.2, y_length=3.9, x_max=1.08, y_max=1.08)
-        left_axes["group"].scale(0.85).move_to(LEFT * 3.6 + DOWN * 0.4)
+        #left_axes["group"].move_to(LEFT * 3.6 + DOWN * 0.4)
         illustrative = Scene04Mixin.scene4_illustrative_curves(left_axes["axes"])
         self.scene04_left_axes = left_axes
         self.scene04_illustrative = illustrative
