@@ -17,7 +17,7 @@ class Scene01Mixin:
     # ------------------------------------------------------------------
     def scene_01(self):
         title = Text("Predictive Analytics", font_size=48)
-        subtitle = Text("Cross Validation & Feature Selection", font_size=24, color=GREY_B)
+        subtitle = Text("Cross Validation & Feature Selection", font_size=24, color=YELLOW)
         subtitle.next_to(title, DOWN, buff=0.4)
 
         with self.voiceover(

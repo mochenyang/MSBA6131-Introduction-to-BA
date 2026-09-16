@@ -76,70 +76,37 @@ class Scene02Mixin:
                 "by overfitting."
             )
         ) as tracker:
-            self.play(Write(title), run_time=1.3)
-            self.play(FadeIn(labeled_group), run_time=0.8)
-            self.play(Create(split_lines), run_time=0.7)
+            self.play(Write(title), run_time=1.5)
+            self.wait(6.0)
+            self.play(FadeIn(labeled_group), run_time=1.0)
+            self.play(Create(split_lines), run_time=1.0)
             self.play(FadeIn(train_group, shift=DOWN * 0.15), FadeIn(val_group, shift=DOWN * 0.15), run_time=1.0)
-            self.play(GrowArrow(recap_arrow1), FadeIn(recap_gear, scale=0.7), run_time=0.9)
-            self.play(GrowArrow(recap_arrow2), FadeIn(recap_eval_label), run_time=0.9)
+            self.wait(2.0)
+            self.play(GrowArrow(recap_arrow1), FadeIn(recap_gear, scale=0.7), run_time=1.0)
+            self.play(GrowArrow(recap_arrow2), FadeIn(recap_eval_label), run_time=1.0)
             self.wait(tracker.get_remaining_duration())
 
         # -- Block 2: the general k-fold procedure -----------------------
+        # Text's bounding box crops to ink extents, so leading spaces carry no
+        # width and aligned_edge=LEFT ignores them -- indentation is instead
+        # applied as an explicit shift per line, after a flush-left arrange
+        # (matching scene_10 in unit 2).
         pseudo_title = Text("k-Fold Cross Validation", font_size=22, color=YELLOW)
         line0 = Text("Input: k (number of folds)", font_size=20)
         line1 = Text("1. Partition data into k folds", font_size=20)
         line2 = Text("2. For each round i = 1..k:", font_size=20)
-        line3 = Text("     Train on the other k-1 folds", font_size=18, color=TRAIN_COLOR)
-        line4 = Text("     Validate on fold i", font_size=18, color=VALIDATION_COLOR)
-        line5 = Text("3. Repeat for all k rounds", font_size=20)
-        code_lines = VGroup(line0, line1, line2, line3, line4, line5).arrange(
+        line3 = Text("Train on the other k-1 folds", font_size=18, color=TRAIN_COLOR)
+        line4 = Text("Validate on fold i", font_size=18, color=VALIDATION_COLOR)
+        code_lines = VGroup(line0, line1, line2, line3, line4).arrange(
             DOWN, aligned_edge=LEFT, buff=0.22
         )
+        INDENT = 0.35
+        line3.shift(RIGHT * INDENT)
+        line4.shift(RIGHT * INDENT)
         code_box = SurroundingRectangle(code_lines, color=WHITE, buff=0.3, corner_radius=0.12)
         pseudo_title.next_to(code_box, UP, buff=0.2)
         pseudocode = VGroup(pseudo_title, code_box, code_lines)
-        pseudocode.move_to(LEFT * 3.4 + DOWN * 0.4)
-
-        fold_bar = make_fold_bar(n_folds=5)
-        fold_bar["group"].scale(0.85).move_to(RIGHT * 3.0 + UP * 0.4)
-
-        gear = self.scene2_make_gear().next_to(fold_bar["group"], DOWN, buff=0.9)
-        scores_row_y = gear.get_bottom()[1] - 0.55
-
-        def score_slot_pos(i):
-            return np.array([fold_bar["rects"][i].get_center()[0], scores_row_y, 0])
-
-        def run_round(i, run_time_scale=1.0):
-            """Highlight fold i as validation, the rest as training, show
-            the model gear building on the training folds and producing a
-            score, then settle that score under fold i and reset colors."""
-            others = [j for j in range(5) if j != i]
-            self.play(
-                *[fold_bar["rects"][j].animate.set_color(TRAIN_COLOR) for j in others],
-                *[fold_bar["dots"][j].animate.set_color(TRAIN_COLOR) for j in others],
-                fold_bar["rects"][i].animate.set_color(VALIDATION_COLOR),
-                fold_bar["dots"][i].animate.set_color(VALIDATION_COLOR),
-                run_time=0.5 * run_time_scale,
-            )
-            gear.move_to(
-                VGroup(*[fold_bar["rects"][j] for j in others]).get_center() + DOWN * 0.9
-            )
-            arrow = Arrow(gear.get_top(), fold_bar["rects"][i].get_bottom(), color=WHITE, buff=0.1, stroke_width=2.5)
-            score = MathTex(f"s_{{{i + 1}}}", color=SCORE_COLOR, font_size=30)
-            score.move_to(fold_bar["rects"][i].get_bottom() + DOWN * 0.35)
-            self.play(FadeIn(gear, scale=0.7), run_time=0.35 * run_time_scale)
-            self.play(GrowArrow(arrow), FadeIn(score, shift=DOWN * 0.1), run_time=0.45 * run_time_scale)
-            self.wait(0.15 * run_time_scale)
-            self.play(
-                score.animate.move_to(score_slot_pos(i)),
-                FadeOut(arrow), FadeOut(gear),
-                *[fold_bar["rects"][j].animate.set_color(NEUTRAL_COLOR) for j in range(5)],
-                *[fold_bar["dots"][j].animate.set_color(NEUTRAL_COLOR) for j in range(5)],
-                run_time=0.5 * run_time_scale,
-            )
-            return score
-
-        scores = [None] * 5
+        pseudocode.move_to(LEFT * 3.4 + UP * 0.2)
 
         with self.voiceover(
             text=(
@@ -148,7 +115,7 @@ class Scene02Mixin:
                 "random subsets to create — one subset is often called a "
                 "\"fold\". During a k-fold cross validation, we randomly partition "
                 "the labeled dataset into k equal-sized subsets. In each round, we "
-                "use k-1 folds to build the predictive model, and evaluate its "
+                "use k minus 1 folds to build the predictive model, and evaluate its "
                 "performance on the remaining fold. This process is then repeated "
                 "for k rounds."
             )
@@ -157,40 +124,89 @@ class Scene02Mixin:
             self.wait(2.5)
             self.play(Write(pseudo_title), Create(code_box), FadeIn(line0), run_time=1.2)
             self.wait(6.5)
-            self.play(FadeIn(fold_bar["group"], shift=UP * 0.15), FadeIn(line1), run_time=1.2)
-            self.wait(4.5)
-            self.play(FadeIn(line2), run_time=0.6)
-            self.play(FadeIn(line3), run_time=0.6)
-            self.play(FadeIn(line4), run_time=0.6)
-            scores[0] = run_round(0)
-            self.wait(3.0)
-            self.play(FadeIn(line5), run_time=1.0)
+            self.play(FadeIn(line1), run_time=1.2)
+            self.wait(6.0)
+            self.play(FadeIn(line2), run_time=1.0)
+            self.play(FadeIn(line3), run_time=1.0)
+            self.play(FadeIn(line4), run_time=1.0)
             self.wait(tracker.get_remaining_duration())
 
         # -- Block 3: the concrete 5-fold example -------------------------
+        # No gear here -- the model-building step was already shown once in
+        # the block 1 recap, so each round just highlights the train/
+        # validation folds by color and drops the score straight under the
+        # fold bar.
+        fold_bar = make_fold_bar(n_folds=5)
+        fold_bar["group"].scale(0.85).move_to(RIGHT * 3.0 + UP * 0.4)
+        scores_row_y = fold_bar["group"].get_bottom()[1] - 0.6
+
+        labeled_data_box = RoundedRectangle(width=2.0, height=0.7, color=WHITE, corner_radius=0.12)
+        labeled_data_label = Text("Labeled Data", font_size=18).move_to(labeled_data_box.get_center())
+        labeled_data_group = VGroup(labeled_data_box, labeled_data_label)
+        labeled_data_group.next_to(fold_bar["group"], UP, buff=0.6)
+        connect_lines = VGroup(
+            *[
+                Line(labeled_data_box.get_bottom(), rect.get_top(), color=GREY_B, stroke_width=2)
+                for rect in fold_bar["rects"]
+            ]
+        )
+
+        def score_slot_pos(i):
+            return np.array([fold_bar["rects"][i].get_center()[0], scores_row_y, 0])
+
+        def run_round(i, run_time_scale=1.0):
+            """Highlight fold i as validation and the rest as training, show
+            its score settle underneath, then reset colors for the next round."""
+            others = [j for j in range(5) if j != i]
+            self.play(
+                *[fold_bar["rects"][j].animate.set_color(TRAIN_COLOR) for j in others],
+                *[fold_bar["labels"][j].animate.set_color(TRAIN_COLOR) for j in others],
+                fold_bar["rects"][i].animate.set_color(VALIDATION_COLOR),
+                fold_bar["labels"][i].animate.set_color(VALIDATION_COLOR),
+                run_time=0.5 * run_time_scale,
+            )
+            score = MathTex(f"s_{{{i + 1}}}", color=SCORE_COLOR, font_size=30)
+            score.move_to(score_slot_pos(i))
+            self.play(FadeIn(score, shift=UP * 0.1), run_time=0.5 * run_time_scale)
+            self.wait(0.15 * run_time_scale)
+            self.play(
+                *[fold_bar["rects"][j].animate.set_color(NEUTRAL_COLOR) for j in range(5)],
+                *[fold_bar["labels"][j].animate.set_color(NEUTRAL_COLOR) for j in range(5)],
+                run_time=0.5 * run_time_scale,
+            )
+            return score
+
+        scores = [None] * 5
+
         with self.voiceover(
             text=(
                 "For example, in a 5-fold cross validation, the labeled data is "
                 "first partitioned into 5 subsets. In each round, 4 folds are "
-                "used to build a decision tree, and the remaining fold is used "
-                "to evaluate the performance of that tree."
+                "used to build a predictive model, and the remaining fold is used "
+                "to evaluate the performance of that model. As a result, you get five "
+                "performance scores, s_1 through s_5, one from each round."
             )
         ) as tracker:
-            self.wait(0.8)
+            self.play(FadeIn(fold_bar["group"], shift=UP * 0.15), FadeIn(labeled_data_group), run_time=1.0)
+            self.play(Create(connect_lines), run_time=0.8)
+            self.wait(3.6)
+            scores[0] = run_round(0, run_time_scale=0.75)
+            self.wait(0.9)
             scores[1] = run_round(1, run_time_scale=0.75)
-            self.wait(1.8)
+            self.wait(0.9)
             scores[2] = run_round(2, run_time_scale=0.75)
-            self.wait(2.2)
+            self.wait(0.9)
             scores[3] = run_round(3, run_time_scale=0.75)
-            self.wait(1.5)
+            self.wait(0.9)
             scores[4] = run_round(4, run_time_scale=0.75)
             all_scores = VGroup(*scores)
-            self.play(Circumscribe(VGroup(fold_bar["group"], all_scores), color=YELLOW), run_time=1.2)
+            self.play(Circumscribe(VGroup(fold_bar["group"], all_scores), color=YELLOW), run_time=1.0)
             self.wait(tracker.get_remaining_duration())
 
         self.wait(0.5)
         self.play(
             FadeOut(title), FadeOut(pseudocode), FadeOut(fold_bar["group"]), FadeOut(VGroup(*scores)),
+            FadeOut(labeled_data_group), FadeOut(connect_lines),
         )
 
         # Stash for scene_03's reuse of the same 5-fold setup.

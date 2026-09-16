@@ -21,7 +21,15 @@ class Scene04Mixin:
         box = Square(side_length=0.32, color=WHITE, stroke_width=2.5)
         label = Text(text, font_size=font_size)
         label.next_to(box, RIGHT, buff=0.25)
-        return VGroup(box, label)
+        c = box.get_center()
+        # Checkmark vertex sits near the box's bottom (not its vertical
+        # center) so the two strokes actually read as a "V" dip -> upstroke
+        # (same construction as scene_05 in unit 1, scaled to this box size).
+        check = VGroup(
+            Line(c + LEFT * 0.1 + UP * 0.015, c + DOWN * 0.1, color=GREEN),
+            Line(c + DOWN * 0.1, c + RIGHT * 0.12 + UP * 0.12, color=GREEN),
+        ).set_stroke(width=3.5)
+        return VGroup(box, label, check)
 
     @staticmethod
     def scene4_sub_bullet(text, font_size=19, color=GREY_B):
@@ -36,7 +44,7 @@ class Scene04Mixin:
         item1 = self.scene4_checkbox_item("Single training-validation split can produce unstable results")
         sub1a = self.scene4_sub_bullet("Validation set too easy → overestimate performance")
         sub1b = self.scene4_sub_bullet("Validation set too hard → underestimate performance")
-        sub1a.next_to(item1, DOWN, buff=0.25).shift(RIGHT * 0.55)
+        sub1a.next_to(item1, DOWN, buff=0.25, aligned_edge=LEFT).shift(RIGHT * 0.15)
         sub1b.next_to(sub1a, DOWN, buff=0.2).align_to(sub1a, LEFT)
         block1 = VGroup(item1, sub1a, sub1b)
         block1.next_to(title, DOWN, buff=0.7).to_edge(LEFT, buff=1.0)
@@ -56,16 +64,16 @@ class Scene04Mixin:
             self.wait(2.0)
             self.play(FadeIn(item1, shift=RIGHT * 0.2), run_time=1.0)
             self.wait(3.0)
-            self.play(FadeIn(sub1a, shift=RIGHT * 0.15), run_time=0.9)
+            self.play(FadeIn(sub1a, shift=RIGHT * 0.1), run_time=0.9)
             self.wait(2.5)
-            self.play(FadeIn(sub1b, shift=RIGHT * 0.15), run_time=0.9)
+            self.play(FadeIn(sub1b, shift=RIGHT * 0.1), run_time=0.9)
             self.wait(tracker.get_remaining_duration())
 
         item2 = self.scene4_checkbox_item("Cross validation provides more robust performance evaluation")
         sub2a = self.scene4_sub_bullet("Every data point is in the validation fold exactly once")
         sub2b = self.scene4_sub_bullet("Aggregating performance across rounds gives a stable measure")
         sub2c = self.scene4_sub_bullet("High variance across rounds signals noisy or small data")
-        sub2a.next_to(item2, DOWN, buff=0.25).shift(RIGHT * 0.55)
+        sub2a.next_to(item2, DOWN, buff=0.25, aligned_edge=LEFT).shift(RIGHT * 0.15)
         sub2b.next_to(sub2a, DOWN, buff=0.2).align_to(sub2a, LEFT)
         sub2c.next_to(sub2b, DOWN, buff=0.2).align_to(sub2a, LEFT)
         block2 = VGroup(item2, sub2a, sub2b, sub2c)
@@ -83,12 +91,12 @@ class Scene04Mixin:
             )
         ) as tracker:
             self.play(FadeIn(item2, shift=RIGHT * 0.2), run_time=1.0)
-            self.wait(1.5)
-            self.play(FadeIn(sub2a, shift=RIGHT * 0.15), run_time=0.8)
-            self.wait(1.3)
-            self.play(FadeIn(sub2b, shift=RIGHT * 0.15), run_time=0.8)
-            self.wait(1.3)
-            self.play(FadeIn(sub2c, shift=RIGHT * 0.15), run_time=0.8)
+            self.wait(3.0)
+            self.play(FadeIn(sub2a, shift=RIGHT * 0.1), run_time=0.8)
+            self.wait(3.0)
+            self.play(FadeIn(sub2b, shift=RIGHT * 0.1), run_time=0.8)
+            self.wait(3.0)
+            self.play(FadeIn(sub2c, shift=RIGHT * 0.1), run_time=0.8)
             self.wait(tracker.get_remaining_duration())
 
         self.wait(0.5)

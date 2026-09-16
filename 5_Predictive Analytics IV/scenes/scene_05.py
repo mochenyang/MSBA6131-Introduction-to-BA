@@ -24,8 +24,8 @@ class Scene05Mixin:
     # ------------------------------------------------------------------
     @staticmethod
     def scene5_knn_visual():
-        class_a_pts = [(-1.0, 0.8), (-0.5, 1.1), (-1.2, -0.5), (0.9, -0.9)]
-        class_b_pts = [(1.1, -0.1), (-0.8, -1.0), (1.2, 0.9)]
+        class_a_pts = [(-0.9, 0.8), (-0.5, 1.1), (-1.2, -0.5), (0.9, -0.9)]
+        class_b_pts = [(1.0, -0.1), (-0.8, -1.0), (1.2, 0.9)]
         new_pt = (0.05, 0.4)
         a_dots = VGroup(*[Dot(RIGHT * x + UP * y, color=SCENE5_CLASS_A, radius=0.09) for x, y in class_a_pts])
         b_dots = VGroup(*[Dot(RIGHT * x + UP * y, color=SCENE5_CLASS_B, radius=0.09) for x, y in class_b_pts])
@@ -75,13 +75,12 @@ class Scene05Mixin:
             )
         ) as tracker:
             self.play(Write(title), run_time=1.5)
+            self.wait(2.0)
             self.play(FadeIn(subtitle, shift=UP * 0.15), run_time=1.0)
             self.wait(tracker.get_remaining_duration())
 
-        self.play(header.animate.scale(0.6).to_edge(UP, buff=0.35), run_time=0.8)
-
-        knn = self.scene5_knn_visual().scale(0.8).move_to(LEFT * 3.4 + DOWN * 0.3)
-        knn_caption = Text("distances are sensitive to irrelevant features", font_size=17, color=YELLOW)
+        knn = self.scene5_knn_visual().move_to(LEFT * 3.4 + DOWN * 0.3)
+        knn_caption = Text("Distances are sensitive to irrelevant features", font_size=17, color=YELLOW)
         knn_caption.next_to(knn, DOWN, buff=0.3)
 
         with self.voiceover(
@@ -94,14 +93,15 @@ class Scene05Mixin:
                 "calculations and cause the model to perform poorly."
             )
         ) as tracker:
-            self.play(FadeIn(knn, shift=UP * 0.2), run_time=1.5)
-            self.wait(3.0)
-            self.play(Circumscribe(knn, color=YELLOW), run_time=1.3)
+            self.play(header.animate.scale(0.6).to_edge(UP, buff=0.35), run_time=1.5)
+            self.wait(7.0)
+            self.play(FadeIn(knn, shift=UP * 0.3), run_time=1.5)
+            self.wait(4.0)
             self.play(FadeIn(knn_caption), run_time=1.0)
             self.wait(tracker.get_remaining_duration())
 
-        tree = self.scene5_tree_visual().scale(0.8).move_to(RIGHT * 3.4 + DOWN * 0.3)
-        tree_caption = Text("choosing splits by information gain is feature selection", font_size=17, color=YELLOW)
+        tree = self.scene5_tree_visual().move_to(RIGHT * 3.4 + DOWN * 0.3)
+        tree_caption = Text("Choosing splits by information gain\nis a type of feature selection", font_size=17, color=YELLOW)
         tree_caption.next_to(tree, DOWN, buff=0.3)
 
         with self.voiceover(
@@ -112,7 +112,8 @@ class Scene05Mixin:
                 "each step, based on the information gain metric."
             )
         ) as tracker:
-            self.play(FadeIn(tree, shift=UP * 0.2), run_time=1.5)
+            self.wait(2.0)
+            self.play(FadeIn(tree, shift=UP * 0.3), run_time=1.5)
             self.wait(2.0)
             self.play(FadeIn(tree_caption), run_time=1.0)
             self.wait(tracker.get_remaining_duration())

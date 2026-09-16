@@ -32,32 +32,27 @@ CURRENT_COLOR = YELLOW         # the feature currently being tried
 
 
 # ----------------------------------------------------------------------
-# k-fold bar -- a row of k folds (rounded boxes with a few dots inside,
-# a "Fold i" label below), all starting neutral-colored. Built in scene_02,
-# then reused (colors re-driven) in scene_03's reporting visuals.
+# k-fold bar -- a row of k folds (rounded boxes, each labeled "Fold i"
+# inside), all starting neutral-colored. Built in scene_02, then reused
+# (colors re-driven) in scene_03's reporting visuals.
 # ----------------------------------------------------------------------
-def make_fold_bar(n_folds=5, dots_per_fold=3, fold_width=1.15, fold_height=0.9, gap=0.3):
+def make_fold_bar(n_folds=5, fold_width=1.15, fold_height=0.9, gap=0.3):
     fold_groups = VGroup()
-    rects, dot_groups, labels = [], [], []
+    rects, labels = [], []
     for i in range(n_folds):
         rect = RoundedRectangle(
             width=fold_width, height=fold_height, corner_radius=0.12,
             color=NEUTRAL_COLOR, stroke_width=3,
         )
-        dots = VGroup(
-            *[Dot(radius=0.06, color=NEUTRAL_COLOR) for _ in range(dots_per_fold)]
-        ).arrange(RIGHT, buff=0.1).move_to(rect.get_center())
-        label = Text(f"Fold {i + 1}", font_size=16, color=GREY_B).next_to(rect, DOWN, buff=0.15)
-        one_fold = VGroup(rect, dots, label)
+        label = Text(f"Fold {i + 1}", font_size=16, color=NEUTRAL_COLOR).move_to(rect.get_center())
+        one_fold = VGroup(rect, label)
         fold_groups.add(one_fold)
         rects.append(rect)
-        dot_groups.append(dots)
         labels.append(label)
     fold_groups.arrange(RIGHT, buff=gap)
     return {
         "group": fold_groups,
         "rects": rects,
-        "dots": dot_groups,
         "labels": labels,
         "n_folds": n_folds,
     }

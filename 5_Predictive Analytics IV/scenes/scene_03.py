@@ -42,7 +42,7 @@ class Scene03Mixin:
                 recap_group.animate.scale(0.6).next_to(title, DOWN, buff=0.35),
                 run_time=0.9,
             )
-            self.wait(0.3)
+            self.wait(2.0)
 
             panel_row_y = recap_group.get_bottom()[1] - 0.55
             left_title = Text("Aggregate Per-Round Measures", font_size=22, color=YELLOW)
@@ -55,13 +55,20 @@ class Scene03Mixin:
                 *[TransformFromCopy(s, sc) for s, sc in zip(scores, score_copies)],
                 run_time=1.3,
             )
-            self.wait(1.0)
+            self.wait(2.0)
 
             mean_label = Text("Mean", font_size=18, color=SCORE_COLOR)
             mean_eq = MathTex(r"=\ \dfrac{s_1+s_2+s_3+s_4+s_5}{5}", font_size=26)
             mean_row = VGroup(mean_label, mean_eq).arrange(RIGHT, buff=0.2)
             mean_row.next_to(score_copies, DOWN, buff=0.45).align_to(left_title, LEFT)
             self.play(TransformFromCopy(score_copies, mean_eq), FadeIn(mean_label), run_time=1.2)
+
+            sd_label = Text("SD", font_size=18, color=SCORE_COLOR)
+            sd_eq = MathTex(r"=\ \sigma(s_1, s_2, s_3, s_4, s_5)", font_size=26)
+            sd_row = VGroup(sd_label, sd_eq).arrange(RIGHT, buff=0.2)
+            sd_row.next_to(mean_row, DOWN, buff=0.3).align_to(left_title, LEFT)
+            self.play(FadeIn(sd_row, shift=UP * 0.1), run_time=1.2)
+            
             self.wait(tracker.get_remaining_duration())
 
         with self.voiceover(
@@ -74,12 +81,7 @@ class Scene03Mixin:
                 "results."
             )
         ) as tracker:
-            sd_label = Text("SD", font_size=18, color=SCORE_COLOR)
-            sd_eq = MathTex(r"=\ \sigma(s_1, s_2, s_3, s_4, s_5)", font_size=26)
-            sd_row = VGroup(sd_label, sd_eq).arrange(RIGHT, buff=0.2)
-            sd_row.next_to(mean_row, DOWN, buff=0.3).align_to(left_title, LEFT)
-            self.play(FadeIn(sd_row, shift=UP * 0.1), run_time=0.8)
-
+            
             right_title = Text("Pool Predictions First", font_size=22, color=YELLOW)
             right_title.move_to(np.array([3.3, panel_row_y, 0]))
             self.play(FadeIn(right_title), run_time=0.8)
@@ -92,9 +94,10 @@ class Scene03Mixin:
             ).arrange(RIGHT, buff=0.15)
             fold_icons.next_to(right_title, DOWN, buff=0.4)
             self.play(FadeIn(fold_icons, shift=DOWN * 0.1), run_time=0.8)
+            self.wait(1.0)
 
             combined_box = RoundedRectangle(width=2.7, height=0.7, corner_radius=0.08, color=WHITE)
-            combined_label = Text("Combined Predictions", font_size=14).move_to(combined_box.get_center())
+            combined_label = Text("Pooled Predictions", font_size=14).move_to(combined_box.get_center())
             combined = VGroup(combined_box, combined_label).next_to(fold_icons, DOWN, buff=0.4)
             icon_copies = fold_icons.copy()
             self.play(
@@ -102,15 +105,13 @@ class Scene03Mixin:
                 run_time=1.0,
             )
             self.play(FadeOut(icon_copies), FadeIn(combined_box), FadeIn(combined_label), run_time=0.6)
+            self.wait(2.0)
 
-            accuracy_eq = MathTex(r"\text{Accuracy}", font_size=24, color=SCORE_COLOR).next_to(
+            accuracy_eq = MathTex(r"\text{Directly Calculate Performance}", font_size=24, color=SCORE_COLOR).next_to(
                 combined, DOWN, buff=0.35
             )
             self.play(FadeIn(accuracy_eq, shift=DOWN * 0.1), run_time=0.8)
 
-            caveat = Text("mean/SD and pooled results may not exactly agree", font_size=16, color=GREY_B)
-            caveat.to_edge(DOWN, buff=0.5)
-            self.play(FadeIn(caveat), run_time=0.8)
             self.wait(tracker.get_remaining_duration())
 
         self.wait(0.5)
@@ -130,9 +131,8 @@ class Scene03(VoiceoverScene, Scene03Mixin):
         # scores, faded out) so scene_03 can be previewed alone, without
         # replaying scene_02's narration/animation.
         fold_bar = make_fold_bar(n_folds=5)
-        # Matches scene_02's real settled score row, well clear of the
-        # "Fold i" labels (which sit close under each box) -- see
-        # scene_02.py's run_round()/scores_row_y for the real computation.
+        # Matches scene_02's real settled score row -- see scene_02.py's
+        # run_round()/scores_row_y for the real computation.
         scores = []
         for i in range(5):
             score = MathTex(f"s_{{{i + 1}}}", color=SCORE_COLOR, font_size=30)

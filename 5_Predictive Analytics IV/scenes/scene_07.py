@@ -56,37 +56,38 @@ class Scene07Mixin:
         ) as tracker:
             self.play(Write(title), run_time=1.3)
             self.play(FadeIn(subtitle, shift=UP * 0.1), run_time=0.8)
+            self.wait(5.0)
             self.play(Create(divider), run_time=0.6)
-            self.play(FadeIn(left_title), FadeIn(right_title), run_time=0.8)
-            self.play(FadeIn(fwd["group"], shift=DOWN * 0.15), FadeIn(bwd["group"], shift=DOWN * 0.15), run_time=1.0)
+            self.play(FadeIn(left_title), run_time=1.0)
+            self.play(FadeIn(right_title), run_time=1.0)
             self.wait(tracker.get_remaining_duration())
 
-        round_label_pos = fwd["group"].get_bottom() + DOWN * 0.55
+        round_label_pos = fwd["group"].get_bottom() + DOWN * 0.55 + LEFT * 0.5
 
         # ---------------- Forward selection ---------------------------------
         with self.voiceover(
             text=(
                 "Forward selection starts with a single feature and adds one "
-                "more feature at a time until performance stops improving."
-            )
-        ) as tracker:
-            self.play(Indicate(fwd["group"], color=CURRENT_COLOR), run_time=1.2)
-            self.wait(tracker.get_remaining_duration())
-
-        with self.voiceover(
-            text=(
+                "more feature at a time until performance stops improving. "
                 "More specifically, say the set of all features is X_1 through "
                 "X_5. Under forward selection, we start by using each single "
                 "feature on its own to build a model, and select whichever "
                 "feature produces the best-performing model."
             )
         ) as tracker:
+            self.wait(5.0)
+            self.play(FadeIn(fwd["group"], shift=DOWN * 0.15), run_time=1.0)
+            self.wait(5.0)
             for box in fwd["boxes"]:
-                self.play(box.animate.set_color(CURRENT_COLOR), run_time=0.35)
-                self.play(box.animate.set_color(WHITE), run_time=0.25)
+                self.play(Indicate(box, color=CURRENT_COLOR), run_time=1.0)
             self.play(fwd["boxes"][2].animate.set_color(SELECTED_COLOR), run_time=0.5)
-            fwd_round_label = Text("Round 1: X_3 selected", font_size=17, color=SELECTED_COLOR).move_to(round_label_pos)
-            self.play(FadeIn(fwd_round_label), run_time=0.6)
+            fwd_round_label1 = VGroup(
+                Text("Round 1: ", font_size=17, color=CURRENT_COLOR),
+                MathTex("X_3", font_size=22, color=CURRENT_COLOR),
+                Text(" selected", font_size=17, color=CURRENT_COLOR),
+            ).arrange(RIGHT, buff=0.08)
+            fwd_round_label1.move_to(round_label_pos)
+            self.play(FadeIn(fwd_round_label1), run_time=0.6)
             self.wait(tracker.get_remaining_duration())
 
         with self.voiceover(
@@ -98,11 +99,15 @@ class Scene07Mixin:
         ) as tracker:
             others = [0, 1, 3, 4]
             for j in others:
-                self.play(fwd["boxes"][j].animate.set_color(CURRENT_COLOR), run_time=0.35)
-                self.play(fwd["boxes"][j].animate.set_color(WHITE), run_time=0.25)
+                self.play(Indicate(fwd["boxes"][j], color=CURRENT_COLOR), run_time=1.0)
             self.play(fwd["boxes"][0].animate.set_color(SELECTED_COLOR), run_time=0.5)
-            new_label2 = Text("Round 2: {X_3, X_1} selected", font_size=17, color=SELECTED_COLOR).move_to(round_label_pos)
-            self.play(Transform(fwd_round_label, new_label2), run_time=0.6)
+            fwd_round_label2 = VGroup(
+                Text("Round 2: ", font_size=17, color=CURRENT_COLOR),
+                MathTex(r"\{X_3, X_1\}", font_size=22, color=CURRENT_COLOR),
+                Text(" selected", font_size=17, color=CURRENT_COLOR),
+            ).arrange(RIGHT, buff=0.08)
+            fwd_round_label2.next_to(fwd_round_label1, DOWN, buff=0.15, aligned_edge=LEFT)
+            self.play(FadeIn(fwd_round_label2), run_time=0.6)
             self.wait(tracker.get_remaining_duration())
 
         with self.voiceover(
@@ -111,44 +116,45 @@ class Scene07Mixin:
                 "performance no longer improves."
             )
         ) as tracker:
-            new_label3 = Text("Round 3: repeat until performance does not improve", font_size=16, color=GREY_B)
-            new_label3.move_to(round_label_pos)
-            self.play(Transform(fwd_round_label, new_label3), run_time=0.8)
+            fwd_round_label3 = Text("Repeat until performance does not improve", font_size=16, color=CURRENT_COLOR)
+            fwd_round_label3.next_to(fwd_round_label2, DOWN, buff=0.15, aligned_edge=LEFT)
+            self.play(FadeIn(fwd_round_label3), run_time=0.8)
             self.wait(tracker.get_remaining_duration())
 
         # ---------------- Backward elimination -------------------------------
-        bwd_round_pos = bwd["group"].get_bottom() + DOWN * 0.55
+        bwd_round_pos = bwd["group"].get_bottom() + DOWN * 0.55 + LEFT * 0.5
         with self.voiceover(
             text=(
-                "Backward elimination starts with all the features and drops "
-                "one feature at a time until performance stops improving."
-            )
-        ) as tracker:
-            bwd_round_label = Text("Round 1: Full Model", font_size=17, color=SELECTED_COLOR).move_to(bwd_round_pos)
-            self.play(
-                *[box.animate.set_color(SELECTED_COLOR) for box in bwd["boxes"]],
-                run_time=1.0,
-            )
-            self.play(FadeIn(bwd_round_label), run_time=0.6)
-            self.wait(tracker.get_remaining_duration())
-
-        with self.voiceover(
-            text=(
+                "In backward elimination, we go the oppposite way. "
                 "We start with all the features, then try dropping each "
                 "feature one at a time and rebuilding the model, eliminating "
                 "whichever feature's removal results in the best performance "
                 "improvement."
             )
         ) as tracker:
+            bwd_round_label1 = Text("Round 1: Full Model", font_size=17, color=CURRENT_COLOR).move_to(
+                bwd_round_pos
+            )
+            self.play(FadeIn(bwd["group"], shift=DOWN * 0.15), run_time=1.0)
+            self.wait(1.0)
+            self.play(
+                *[box.animate.set_color(SELECTED_COLOR) for box in bwd["boxes"]],
+                run_time=1.0,
+            )
+            self.play(FadeIn(bwd_round_label1), run_time=0.6)
             for box in bwd["boxes"]:
-                self.play(box.animate.set_color(CURRENT_COLOR), run_time=0.35)
-                self.play(box.animate.set_color(SELECTED_COLOR), run_time=0.25)
+                self.play(Indicate(box, color=CURRENT_COLOR), run_time=1.0)
             drop_cross = Cross(stroke_color=REJECTED_COLOR, stroke_width=5, scale_factor=0.22).move_to(
                 bwd["boxes"][1].get_center()
             )
             self.play(bwd["boxes"][1].animate.set_color(REJECTED_COLOR), FadeIn(drop_cross), run_time=0.6)
-            new_bwd_label = Text("Round 2: X_2 dropped", font_size=17, color=REJECTED_COLOR).move_to(bwd_round_pos)
-            self.play(Transform(bwd_round_label, new_bwd_label), run_time=0.6)
+            bwd_round_label2 = VGroup(
+                Text("Round 2: ", font_size=17, color=CURRENT_COLOR),
+                MathTex("X_2", font_size=22, color=CURRENT_COLOR),
+                Text(" dropped", font_size=17, color=CURRENT_COLOR),
+            ).arrange(RIGHT, buff=0.08)
+            bwd_round_label2.next_to(bwd_round_label1, DOWN, buff=0.15, aligned_edge=LEFT)
+            self.play(FadeIn(bwd_round_label2), run_time=0.6)
             self.wait(tracker.get_remaining_duration())
 
         with self.voiceover(
@@ -157,9 +163,9 @@ class Scene07Mixin:
                 "time, until performance no longer improves."
             )
         ) as tracker:
-            new_bwd_label2 = Text("Round 3: repeat until performance does not improve", font_size=16, color=GREY_B)
-            new_bwd_label2.move_to(bwd_round_pos)
-            self.play(Transform(bwd_round_label, new_bwd_label2), run_time=0.8)
+            bwd_round_label3 = Text("Repeat until performance does not improve", font_size=16, color=CURRENT_COLOR)
+            bwd_round_label3.next_to(bwd_round_label2, DOWN, buff=0.15, aligned_edge=LEFT)
+            self.play(FadeIn(bwd_round_label3), run_time=0.8)
             self.wait(tracker.get_remaining_duration())
 
         self.wait(0.5)
