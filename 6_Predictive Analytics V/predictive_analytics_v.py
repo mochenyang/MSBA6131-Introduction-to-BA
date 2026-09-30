@@ -1,0 +1,32 @@
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from manim_voiceover import VoiceoverScene
+
+from tts import get_speech_service
+from scenes.scene_01 import Scene01Mixin
+from scenes.scene_02 import Scene02Mixin
+from scenes.scene_03 import Scene03Mixin
+from scenes.scene_04 import Scene04Mixin
+from scenes.scene_05 import Scene05Mixin
+
+
+class PredictiveAnalyticsV(
+    VoiceoverScene,
+    Scene01Mixin,
+    Scene02Mixin,
+    Scene03Mixin,
+    Scene04Mixin,
+    Scene05Mixin,
+):
+    def construct(self):
+        self.set_speech_service(get_speech_service())
+
+        self.scene_01()
+        self.scene_02()
+        self.scene_03()
+        self.scene_04()
+        self.scene_05()
